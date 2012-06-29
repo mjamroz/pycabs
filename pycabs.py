@@ -6,8 +6,9 @@ from re import search,sub
 from os import getcwd,chdir,path
 from subprocess import Popen,PIPE
 from shutil import copyfile
+import threading
 
-class CABS:
+class CABS(threading.Thread):
 	"""CABS main class.
 	
 	:param sequence: one line sequence of the target protein
@@ -30,7 +31,7 @@ class CABS:
 		self.templates_fn = templates_filenames
 		
 		sub(r'\s', '', project_name)
-		self.name = project_name
+		self.pname = project_name
 		
 		
 		self.seqlen = len(sequence)
@@ -51,7 +52,9 @@ class CABS:
 
 	def calcConstraints(self,exclude_residues=[]): # TODO - update self.constraints
 		pass
-	def _trafToPdb(self, output_filename = "TRAF.pdb"):
+	def getTraCoordinates(self):
+		pass
+	def trafToPdb(self, output_filename = "TRAF.pdb"):
 		""" 
 			Convert TRAF CABS pseudotrajectory file format into multimodel pdb
 		"""
@@ -99,7 +102,6 @@ class CABS:
 				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")
 				
 				
-				
 	def _copyFFFiles(self):
 		path_to_ff_dir="/home/hydek/pycabs/FF" # TODO
 		for fff in ["R13","R13A","CENTRO","QUASI3S","R13C","R13E",\
@@ -110,7 +112,8 @@ class CABS:
 	def _copyChains(self):
 		copyfile("FCHAINS","FCHAINS_old")
 		copyfile("ACHAINS_NEW","FCHAINS")
-		
+	def setParameters(self,	 Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
+		pass
 	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
 		self._copyFFFiles()
 		
@@ -139,7 +142,7 @@ class CABS:
 		print Info("Done.")
 		self._copyChains()
 		
-		self._trafToPdb()
+		#self._trafToPdb()
 		
 		
 	def _createSEQ(self):
@@ -191,7 +194,7 @@ class CABS:
 		if len(start_structures_fn)==0 and len(self.templates_fn)==0:
 			raise Errors("lists start_structures_fn OR templates_filenames cannot be empty !")
 			
-		tempdir = mkdtemp('',self.name+'_tmp','.')
+		tempdir = mkdtemp('',self.pname+'_tmp','.')
 		self.tempdir = tempdir
 		temp_filenames = self.templates_fn
 		if len(start_structures_fn)>0:	# for user selected start models
