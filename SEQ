@@ -1,44 +1,44 @@
-    1   ILE    2
-    2   ASP    2
-    3   VAL    2
-    4   LEU    2
-    5   LEU    2
-    6   GLY    2
-    7   ALA    2
-    8   ASP    2
-    9   ASP    2
-   10   GLY    2
-   11   SER    2
-   12   LEU    2
-   13   ALA    2
-   14   PHE    2
-   15   VAL    2
-   16   PRO    2
-   17   SER    2
-   18   GLU    2
-   19   PHE    2
-   20   SER    2
-   21   ILE    2
-   22   SER    2
-   23   PRO    2
-   24   GLY    2
-   25   GLU    2
-   26   LYS    2
-   27   ILE    2
-   28   VAL    2
-   29   PHE    2
-   30   LYS    1
-   31   ASN    1
+    1   ILE    1
+    2   ASP    4
+    3   VAL    4
+    4   LEU    4
+    5   LEU    4
+    6   GLY    1
+    7   ALA    1
+    8   ASP    1
+    9   ASP    1
+   10   GLY    1
+   11   SER    1
+   12   LEU    1
+   13   ALA    1
+   14   PHE    4
+   15   VAL    4
+   16   PRO    1
+   17   SER    1
+   18   GLU    4
+   19   PHE    4
+   20   SER    4
+   21   ILE    4
+   22   SER    1
+   23   PRO    1
+   24   GLY    1
+   25   GLU    1
+   26   LYS    4
+   27   ILE    4
+   28   VAL    4
+   29   PHE    4
+   30   LYS    4
+   31   ASN    4
    32   ASN    1
    33   ALA    1
    34   GLY    1
    35   PHE    1
    36   PRO    1
-   37   HIS    1
-   38   ASN    1
-   39   ILE    1
-   40   VAL    1
-   41   PHE    1
+   37   HIS    4
+   38   ASN    4
+   39   ILE    4
+   40   VAL    4
+   41   PHE    4
    42   ASP    1
    43   GLU    1
    44   ASP    1
@@ -49,10 +49,10 @@
    49   GLY    1
    50   VAL    1
    51   ASP    1
-   52   ALA    1
-   53   SER    1
-   54   LYS    1
-   55   ILE    1
+   52   ALA    2
+   53   SER    2
+   54   LYS    2
+   55   ILE    2
    56   SER    1
    57   MET    1
    58   SER    1
@@ -60,40 +60,40 @@
    60   GLU    1
    61   ASP    1
    62   LEU    1
-   63   LEU    1
+   63   LEU    4
    64   ASN    1
    65   ALA    1
    66   LYS    1
    67   GLY    1
    68   GLU    1
-   69   THR    1
-   70   PHE    1
-   71   GLU    1
-   72   VAL    1
-   73   ALA    1
-   74   LEU    4
-   75   SER    4
-   76   ASN    4
-   77   LYS    4
+   69   THR    4
+   70   PHE    4
+   71   GLU    4
+   72   VAL    4
+   73   ALA    4
+   74   LEU    1
+   75   SER    1
+   76   ASN    1
+   77   LYS    1
    78   GLY    4
    79   GLU    4
    80   TYR    4
    81   SER    4
    82   PHE    4
    83   TYR    4
-   84   CYS    4
-   85   SER    4
-   86   PRO    4
-   87   HIS    4
-   88   GLN    4
-   89   GLY    4
-   90   ALA    4
-   91   GLY    4
-   92   MET    4
+   84   CYS    1
+   85   SER    1
+   86   PRO    2
+   87   HIS    2
+   88   GLN    2
+   89   GLY    2
+   90   ALA    1
+   91   GLY    1
+   92   MET    1
    93   VAL    4
    94   GLY    4
    95   LYS    4
    96   VAL    4
    97   THR    4
    98   VAL    4
-   99   ASN    4
+   99   ASN    1
