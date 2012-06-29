@@ -3,10 +3,9 @@
 
 from tempfile import mkdtemp
 from re import search,sub
-from os import getcwd,chdir
+from os import getcwd,chdir,path
 from subprocess import Popen,PIPE
 from shutil import copyfile
-from time import clock
 
 class CABS:
 	"""CABS main class.
@@ -27,20 +26,80 @@ class CABS:
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
 		self.sequence = sequence
-		sub(r'\s', '', project_name)
-		self.name = project_name
 		self.ss = secondary_structure
 		self.templates_fn = templates_filenames
-		self.seqlen = len(sequence)
 		
+		sub(r'\s', '', project_name)
+		self.name = project_name
+		
+		
+		self.seqlen = len(sequence)
+		self.rng_seed = 1799	#: seed for random generator
 		self.constraints = 0
 		# self.replicas - defined in lattie model creation method
+		
+		
+		self.seq_trans={'A': "ALA",'R': "ARG",'N':"ASN",'D':"ASP",'C':"CYS",\
+		'E':"GLU",'Q':"GLN",'G':"GLY",'H':"HIS",'I':"ILE",'L':"LEU",\
+		'K':"LYS",'M':"MET",'F':"PHE",'P':"PRO",'S':"SER",'T':"THR",\
+		'W':"TRP",'Y':"TYR",'V':"VAL"}
+		
+		
+		
+		
 		self._createSEQ() # we always need SEQ file so I put it here
 
 	def calcConstraints(self,exclude_residues=[]): # TODO - update self.constraints
 		pass
-	def trafToPdb(self, output_filename = "TRAF.pdb"):
-		pass	
+	def _trafToPdb(self, output_filename = "TRAF.pdb"):
+		""" 
+			Convert TRAF CABS pseudotrajectory file format into multimodel pdb
+		"""
+		
+		pdb_format = "ATOM   %4d  CA  %3s A%4d    %8.3f%8.3f%8.3f  1.00  0.00           C\n"
+		model_format = "MODEL%9d\n"
+
+		if path.isfile("TRAF"):
+			try:
+				traf = open("TRAF")
+				t = traf.readlines()
+				traf.close()
+				
+				# it is worth to create 3-digit list of residues
+				seq = []
+				for s1 in self.sequence: seq.append(self.seq_trans[s1])
+				pdb_data = ""
+				model = []
+				model_idx = 1
+				for l in t[1:]:
+					if "." in l: # "." is only in TRAF header
+						pdb_data += model_format %(model_idx)
+						model = model[3:-3] # skip dummy atoms
+						for ai in range(self.seqlen):
+							pdb_data += pdb_format %(ai+1,seq[ai],ai+1,model[3*ai],model[3*ai+1],model[3*ai+2])
+						pdb_data += "ENDMDL\n"	
+						model = []
+						model_idx +=1 
+					else:	# load coordinates
+						for coord in l.split(): model.append(int(coord)*0.61) 
+				# and write last model and clean a little
+				pdb_data += model_format %(model_idx)
+				model = model[3:-3] # skip dummy atoms
+				for ai in range(self.seqlen):
+					pdb_data += pdb_format %(ai+1,seq[ai],ai+1,model[3*ai],model[3*ai+1],model[3*ai+2])
+				pdb_data += "ENDMDL\n"		
+				t = []
+				fw = open(output_filename,"w")
+				fw.write(pdb_data)
+				fw.close()
+				pdb_data = ""
+				
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")
+				
+				
+				
 	def _copyFFFiles(self):
 		path_to_ff_dir="/home/hydek/pycabs/FF" # TODO
 		for fff in ["R13","R13A","CENTRO","QUASI3S","R13C","R13E",\
@@ -48,17 +107,18 @@ class CABS:
 		"R15E","R15H","SIDECENT"]:
 			copyfile(path_to_ff_dir+"/"+fff,"./"+fff)
 			
-	def copyChains(self):
+	def _copyChains(self):
+		copyfile("FCHAINS","FCHAINS_old")
 		copyfile("ACHAINS_NEW","FCHAINS")
 		
 	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
 		self._copyFFFiles()
 		
 		# create INP file
-		rng_seed = 1799
-		inp = "%d %d %d %d\n%5.2f %5.2f %5.2f %5.3f %5.3f\n%5.2f %5.2f"\
-		 "%5.2f %5.2f %5.3f\n0. 0 0 0 0\n0.0 0.0 0.0 0.0\n0 0.0\n%6d"\
-		 "%5.2f" %(rng_seed,cycles,phot,self.replicas,Htemp,Ltemp,4.0,\
+		
+		inp = "%5d %5d %5d %5d\n%5.2f %5.2f %5.2f %5.3f %5.3f\n%5.2f %5.2f"\
+		 "%5.2f %5.2f %5.3f\n0. 0 0 0 0\n0.0 0.0 0.0 0.0\n0 0.0\n%5d"\
+		 "%5.2f" %(self.rng_seed,cycles,phot,self.replicas,Htemp,Ltemp,4.0,\
 		 0.125,0.250,1.0,2.0,0.25,-2.00,0.375,self.constraints,constraints_force)
 		try:
 			f = open("INP","w")
@@ -69,17 +129,17 @@ class CABS:
 		print Info("INP file created")	
 		# run CABS	
 		# TODO zmodyfikowac CABS odnosnie OUT i TRAF
-		print Info("CABS modeling software...")
+		print Info("CABS started...")
 		path_to_cabs="/home/hydek/pycabs/FF/" # TODO
 		arg = path_to_cabs+"cabs" 
-		cabs_start = clock()
-
+		
 		cabsstart = Popen([arg], shell=True, stdout=PIPE)
 		cabsstart.communicate()
 
-		elapsed = (clock() - cabs_start)/60
-
-		print Info("Done. Running time: %6d min." %(elapsed))
+		print Info("Done.")
+		self._copyChains()
+		
+		self._trafToPdb()
 		
 		
 	def _createSEQ(self):
@@ -92,14 +152,10 @@ class CABS:
 			SEQ is required, and has to be created each time so we added it to __init__ of CABS class. 
 			**WARNING**: It overwrites any SEQ in working directory.
 		"""
-		seq_trans={'A': "ALA",'R': "ARG",'N':"ASN",'D':"ASP",'C':"CYS",\
-		'E':"GLU",'Q':"GLN",'G':"GLY",'H':"HIS",'I':"ILE",'L':"LEU",\
-		'K':"LYS",'M':"MET",'F':"PHE",'P':"PRO",'S':"SER",'T':"THR",\
-		'W':"TRP",'Y':"TYR",'V':"VAL"}
 		ss_trans={'C':1,'H':2,'E':4} 
 		# secondary structure 1=coil, 2=helix,  4=beta
 
-		seqk = seq_trans.keys()
+		seqk = self.seq_trans.keys()
 		ssk = ss_trans.keys()
 		# check if seq/ss are correct
 		for i in range(self.seqlen):
@@ -113,7 +169,7 @@ class CABS:
 			f = open("SEQ","w")
 			frmt = "%5d   %3s    %1d\n"
 			for i in range(self.seqlen):
-				s = frmt % (i+1,seq_trans[self.sequence[i]],ss_trans[self.ss[i]])
+				s = frmt % (i+1,self.seq_trans[self.sequence[i]],ss_trans[self.ss[i]])
 				f.write(s)
 			print Info("SEQ file created")
 			f.close()
@@ -233,7 +289,7 @@ def parsePsipredOutput(psipred_output_fn):
 def parsePorterOutput(porter_output_fn):
 	"""
 		Porter (protein secondary stucture prediction, http://distill.ucd.ie/porter/) output parser. 
-		Porter output looks like: ::
+		Porter emailed output looks like: ::
 		
 			IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEE
 			CEEEECCCCCCCCEECCEEEECCCCEEEEEECCCCCEEEEECCCCCCCCCCHHHHCCCCC
@@ -243,7 +299,7 @@ def parsePorterOutput(porter_output_fn):
 			DLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN
 			CCECCCCCEEEEECCCCEEEEEECCHHHHCCCEEEEEEC
 
-		.. note:: Use only sequence/secondary structure fragment of Porter email
+		.. note:: Use only sequence/secondary structure fragment of Porter email. #TODO - mozna wywalic male litery
 		
 		:param porter_output_fn: path to the porter output file
 		:type porter_output_fn: string
@@ -271,7 +327,26 @@ def parsePorterOutput(porter_output_fn):
 	except IOError as e:
 		print "I/O error({0}): {1}".format(e.errno, e.strerror)
 	return (seq,ss)
+
+def convertPdbToDcd(catdcd_path="/home/hydek/pycabs/FF/catdcd",output_dcd="TRAF.dcd",input_pdb="TRAF.pdb"):
+	"""
+		This is only simple wrapper to CatDCD software (http://www.ks.uiuc.edu/Development/MDTools/catdcd/), 
+		could be usable since \*.dcd binary format is few times lighter than pdb, and many python libraries 
+		(ProDy, MDAnalysis) use \*.dcd as trajectory input format.
+		Before use, download CatDCD from http://www.ks.uiuc.edu/Development/MDTools/catdcd/ and modify catdcd_path.
+		
+	"""
 	
+	if not path.isfile(catdcd_path):
+		raise Errors("You do not have catdcd. Download it from http://www.ks.uiuc.edu/Development/MDTools/catdcd/ , uncompress and give correct path. Buenos dias.")
+	if path.isfile(input_pdb):
+		print Info("Converting PDB into DCD...")
+		catdcd = Popen([catdcd_path+" -o "+output_dcd+" -otype dcd -pdb "+input_pdb], shell=True, stdout=PIPE)
+		catdcd.communicate()
+		
+	else:
+		raise Errors("input pdb file does not exist!")
+			
 
 
 
@@ -307,5 +382,6 @@ if __name__ == "__main__":
 	templates = ["playground/2pcy_CA.pdb"]
 	a = CABS(data[0],data[1],templates)
 	a.createLatticeReplicas()
-	a.modeling()
+	a.modeling(cycles=2,phot=2)
+	convertPdbToDcd()
 #	print parsePsipredOutput("playground/psipred.ss")
