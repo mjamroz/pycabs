@@ -23,10 +23,15 @@ class CABS:
 		self.sequence = sequence
 		self.ss = secondary_structure
 		self.templates_fn = templates_filenames
+		self.seqlen = len(sequence)
+
 
 	def createSEQ(self):
 		"""
-			Create SEQ input file for CABS, which contains sequence and (predicted) secondary structure of target
+			Create SEQ input file for CABS, which contains sequence and (predicted) secondary structure of target chain.
+			
+			SEQ file is three-column file, where first column is index of residue (1...N), 
+			second is three letter aminoacid, and third is secondary structure (1: coil, 2: helix, 4: beta)
 		"""
 		seq_trans={'A': "ALA",'R': "ARG",'N':"ASN",'D':"ASP",'C':"CYS",\
 		'E':"GLU",'Q':"GLN",'G':"GLY",'H':"HIS",'I':"ILE",'L':"LEU",\
@@ -38,7 +43,7 @@ class CABS:
 		seqk = seq_trans.keys()
 		ssk = ss_trans.keys()
 		# check if seq/ss are correct
-		for i in range(len(self.sequence)):
+		for i in range(self.seqlen):
 			if self.sequence[i] not in seqk:
 				raise Errors("Problem with sequence letter "+self.sequence[i])
 			if self.ss[i] not in ssk:
@@ -48,24 +53,43 @@ class CABS:
 		try:
 			f = open("SEQ","w")
 			frmt = "%5d   %3s    %1d\n"
-			for i in range(len(self.sequence)):
+			for i in range(self.seqlen):
 				s = frmt % (i+1,seq_trans[self.sequence[i]],ss_trans[self.ss[i]])
 				f.write(s)
+			print Info("SEQ file created")
 			f.close()
 		except IOError as e:
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
-	def createLatticeModel(self,start_structure_fn=''):
+	def createLatticeReplicas(self,start_structures_fn=[],replicas=20):
 		"""
-			create model projected onto CABS lattice
+			create protein models projected onto CABS lattice, which will be used as replicas
+			
+			:param start_structures_fn: list of paths to pdb files which should be used instead of templates models. 
+			This parameter is optional, and probably not often used. Without it script creates replicas from templates files.
+			:type start_structures_fn: list
+			:param replicas: define number of replicas in CABS simulation. Usually you don't need to change it. If number of replicas is smaller than number of templates - program will create replicas from first R templates. If there is less templates than replicas, replicas are generated sequentially from template models.
+			:type replicas: integer
 		"""
-		tempdir = mkdtemp('','CABS_','.')
+		if len(start_structures_fn)==0 and len(self.templates_fn)==0:
+			raise Errors("lists start_structures_fn OR templates_filenames cannot be empty !")
+			
+		tempdir = mkdtemp('','CABStmp_','.')
+		
+		temp_filenames = self.templates_fn
+		if len(start_structures_fn)>0:	# for user selected start models
+			temp_filenames = start_structures_fn
+			
+		# create lattice model of all pdbs
+	
+		i = 0
+		for tfn in temp_filenames:
+			l = 0
+			try:
+				print Info("creating lattice model for "+tfn)
+				f = open(tfn,"r") 	
+				output = "/ALIGN%d" % (i)
 
-		if start_structure_fn != '':	# for user selected start model
-			l=0 # template length
-			try: 
-				f = open(start_structure_fn)
-				fw = open(tempdir+"/ALIGN0","w")
-				
+				fw = open(tempdir+output,"w")
 				for line in f.readlines():
 					if search("^ATOM.........CA", line): # get only Calpha atoms
 						fw.write(line)
@@ -73,47 +97,50 @@ class CABS:
 				fw.close()		
 				f.close()
 				chdir(tempdir)
-				
-				arg = "../FF/a.out %d %d %d" % (len(self.sequence),l,0) # TODO
+				arg = "../FF/a.out %d %d %d" % (self.seqlen,l,i) # TODO
 				chainstart = Popen([arg], shell=True, stdout=PIPE)
 				chainstart.communicate()
-				chdir("../")
 			
+				chdir("../")
+				i += 1
 			except IOError as e:
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
-		else:
-			# create lattice model for all templates
-			sqlen = len(self.sequence)
+				
+		# create FCHAINS file which contains replicas coordinates
+		
+		m = len(temp_filenames) # number of templates
+		chains_data = []
+		for i in range(m): # load all chain files into memory
+			chain = open(tempdir+"/CHAIN"+str(i),"r")
+			chains_data.append(chain.readlines())
+			chain.close()
 			
-			i = 0
-			for tfn in self.templates_fn:
-				l = 0
-				try:
-					f = open(tfn,"r")
-					output = "/ALIGN%d" % (i)
+	
+		counter = 0
+		k = 0 					# index of template
+		fchains = open("FCHAINS","w")				
+		while counter<replicas: 
+			for line in chains_data[k]:
+				fchains.write(line)
+			k += 1
+			if k==m: k=0
+			counter +=1
+		fchains.close()	
+		print Info("FCHAINS file created")
+			
 
-					fw = open(tempdir+output,"w")
-					for line in f.readlines():
-						if search("^ATOM.........CA", line): # get only Calpha atoms
-							fw.write(line)
-							l +=1
-					fw.close()		
-					f.close()
-					
-					chdir(tempdir)
-					arg = "../FF/a.out %d %d %d" % (sqlen,l,i) # TODO
-					chainstart = Popen([arg], shell=True, stdout=PIPE)
-					chainstart.communicate()
-					chdir("../")
-					i += 1
-				except IOError as e:
-					print "I/O error({0}): {1}".format(e.errno, e.strerror)
-				
-				
 				
 			
 
-
+class Info():
+	"""
+		Simple message system
+	"""
+	def __init__(self,text):
+		self.text = text
+	def __str__(self):
+		return "INFO: "+self.text
+		
 class Errors(Exception):
 	"""
 		Simple error messages
@@ -132,4 +159,4 @@ ss =  "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 templates = ["playground/2pcy_CA.pdb","playground/2pcy.pdb"]
 a = CABS(seq,ss,templates)
 a.createSEQ()
-a.createLatticeModel()
+a.createLatticeReplicas()
