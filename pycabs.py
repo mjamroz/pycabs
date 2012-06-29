@@ -6,6 +6,7 @@ from re import search
 from os import getcwd,chdir
 from subprocess import Popen,PIPE
 
+
 class CABS:
 	"""CABS main class.
 	
@@ -24,14 +25,20 @@ class CABS:
 		self.ss = secondary_structure
 		self.templates_fn = templates_filenames
 		self.seqlen = len(sequence)
+		
+		self._createSEQ() # we always need SEQ file so I put it here
 
 
-	def createSEQ(self):
+	def _createSEQ(self):
 		"""
 			Create SEQ input file for CABS, which contains sequence and (predicted) secondary structure of target chain.
 			
 			SEQ file is three-column file, where first column is index of residue (1...N), 
 			second is three letter aminoacid, and third is secondary structure (1: coil, 2: helix, 4: beta)
+			
+			SEQ is required, and has to be created each time so we added it to __init__ of this class. 
+			.. warning::
+			It overrides any SEQ in working directory.
 		"""
 		seq_trans={'A': "ALA",'R': "ARG",'N':"ASN",'D':"ASP",'C':"CYS",\
 		'E':"GLU",'Q':"GLN",'G':"GLY",'H':"HIS",'I':"ILE",'L':"LEU",\
@@ -62,12 +69,11 @@ class CABS:
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
 	def createLatticeReplicas(self,start_structures_fn=[],replicas=20):
 		"""
-			create protein models projected onto CABS lattice, which will be used as replicas
+			Create protein models projected onto CABS lattice, which will be used as replicas.
 			
-			:param start_structures_fn: list of paths to pdb files which should be used instead of templates models. 
-			This parameter is optional, and probably not often used. Without it script creates replicas from templates files.
+			:param start_structures_fn: list of paths to pdb files which should be used instead of templates models.  This parameter is optional, and probably not often used. Without it script creates replicas from templates files.
 			:type start_structures_fn: list
-			:param replicas: define number of replicas in CABS simulation. Usually you don't need to change it. If number of replicas is smaller than number of templates - program will create replicas from first R templates. If there is less templates than replicas, replicas are generated sequentially from template models.
+			:param replicas: define number of replicas in CABS simulation. Usually you don't need to change it, default 20 is optimal for most cases. If number of replicas is smaller than number of templates - program will create replicas from first R templates. If there is less templates than replicas, replicas are generated sequentially from template models.
 			:type replicas: integer
 		"""
 		if len(start_structures_fn)==0 and len(self.templates_fn)==0:
@@ -140,6 +146,7 @@ class Info():
 		self.text = text
 	def __str__(self):
 		return "INFO: "+self.text
+
 		
 class Errors(Exception):
 	"""
@@ -153,10 +160,10 @@ class Errors(Exception):
 
 
 # tests
+if __name__ == "__main__":
+	seq = "IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEEDLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN"
+	ss =  "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCEEEEEEEEEEEEEEEEEEEEEEEEEE"
+	templates = ["playground/2pcy_CA.pdb","playground/2pcy.pdb"]
+	a = CABS(seq,ss,templates)
 
-seq = "IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEEDLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN"
-ss =  "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCEEEEEEEEEEEEEEEEEEEEEEEEEE"
-templates = ["playground/2pcy_CA.pdb","playground/2pcy.pdb"]
-a = CABS(seq,ss,templates)
-a.createSEQ()
-a.createLatticeReplicas()
+	a.createLatticeReplicas()
