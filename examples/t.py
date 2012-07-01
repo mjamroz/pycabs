@@ -10,7 +10,7 @@ class Monitor(threading.Thread):
 		self.first_mtime = os.stat(filename).st_mtime
 		self.kill = False
 		fb = open(filename)
-		self.buf = [i.strip() for i in fb.readlines()] # get whole file
+		self.buf = [i.strip() for i in fb] # get whole file
 		self.position = fb.tell() # and save position of eof
 		fb.close()
 		
@@ -29,24 +29,26 @@ class Monitor(threading.Thread):
 				self.first_mtime = mtime
 				fb = open(self.f)
 				fb.seek(self.position)
-				#print self.position
-				while 1:
-					l = fb.readline().strip()
-					if(l!=""):
-						self.buf.append(l)
-					else:
-						self.position = fb.tell()
-						break
-				if "END" in self.buf: # reach end of file
-					break
-				else:
-					print self.buf
-					self.buf=[]
+				for l in fb:
+					self.buf.append(l.strip())
+				self.position = fb.tell()
+					
+				
+				#if "END" in self.buf: # reach end of file
+				#	break
+				#else:
+				print self.buf
+				self.buf=[]
 					
 						
 						
 		
 m=Monitor("/tmp/energy")
 m.start()
-
-#m.terminate()
+time.sleep(10)
+m.terminate()
+#f = open("/tmp/energy")
+#f.seek(20)
+#for l in f:
+#	print l,
+#print f.tell()
