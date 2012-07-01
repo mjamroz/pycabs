@@ -23,7 +23,7 @@ class CABS(threading.Thread):
 	.. warning:: it will overwrite previous SEQ file.
 	"""
 
-	def __init__(self,sequence,secondary_structure,templates_filenames,project_name="fnord"):
+	def __init__(self,sequence,secondary_structure,templates_filenames, project_name='fnord'):
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
 		self.sequence = sequence
