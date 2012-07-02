@@ -32,7 +32,6 @@ class CABS(threading.Thread):
 		self.ss = secondary_structure
 		self.templates_fn = templates_filenames
 		self.cwd = getcwd()
-		print self.cwd
 		sub(r'\s', '', project_name)
 		self.pname = project_name
 		mkdir(self.pname)
@@ -102,7 +101,7 @@ class CABS(threading.Thread):
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
 				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")
 				
-	def convertPdbToDcd(self,catdcd_path="/home/mjamroz/pycabs/FF/catdcd"):
+	def convertPdbToDcd(self,catdcd_path="/home/hydek/pycabs/FF/catdcd"):
 		"""
 			This is only simple wrapper to CatDCD software (http://www.ks.uiuc.edu/Development/MDTools/catdcd/), 
 			could be usable since \*.dcd binary format is few times lighter than pdb, and many python libraries 
@@ -123,11 +122,11 @@ class CABS(threading.Thread):
 			raise Errors("input pdb file does not exist!")
 						
 	def _copyFFFiles(self):
-		path_to_ff_dir="/home/mjamroz/pycabs/FF" # TODO
+		path_to_ff_dir="/home/hydek/pycabs/FF" # TODO
 		for fff in ["R13","R13A","CENTRO","QUASI3S","R13C","R13E",\
 		"R13H","R14","R14A","R14C","R14E","R14H","R15","R15A","R15C",\
 		"R15E","R15H","SIDECENT"]:
-			copyfile(path_to_ff_dir+"/"+fff,"./"+fff)
+			copyfile(path.join(path_to_ff_dir,fff),fff)
 			
 	def _copyChains(self):
 		copyfile("FCHAINS","FCHAINS_old")
@@ -151,9 +150,8 @@ class CABS(threading.Thread):
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
 		print Info("INP file created")	
 		# run CABS	
-		# TODO zmodyfikowac CABS odnosnie OUT i TRAF
 		print Info("CABS started...")
-		path_to_cabs="/home/mjamroz/pycabs/FF/" # TODO
+		path_to_cabs="/home/hydek/pycabs/FF/" # TODO
 		arg = path_to_cabs+"cabs" 
 		
 		cabsstart = Popen([arg], shell=True, stdout=PIPE)
@@ -198,7 +196,10 @@ class CABS(threading.Thread):
 			f.close()
 		except IOError as e:
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
-	def createLatticeReplicas(self,start_structures_fn=[],replicas=20):
+			
+			
+
+ 	def createLatticeReplicas(self,start_structures_fn=[],replicas=20):
 		"""
 			Create protein models projected onto CABS lattice, which will be used as replicas.
 			
@@ -210,6 +211,7 @@ class CABS(threading.Thread):
 			.. note:: If number of replicas is smaller than number of templates - program will create replicas using first *replicas* templates. If there is less templates than replicas, they are creating sequentially using template models.
 			
 		"""
+		
 		if len(start_structures_fn)==0 and len(self.templates_fn)==0:
 			raise Errors("lists start_structures_fn OR templates_filenames cannot be empty !")
 		
@@ -226,22 +228,24 @@ class CABS(threading.Thread):
 			l = 0
 			try:
 				print Info("creating lattice model for "+tfn)
-				f = open(tfn,"r") 	 #TODO
+				f = open(tfn,"r")
 				output = "/ALIGN%d" % (i)
 
-				fw = open(self.cwd+"/"+self.pname+"/"+tempdir+"/"+output,"w") #TODO
+				fw = open(path.join(self.cwd,self.pname,tempdir,output),"w")
+				print "dfsdf",path.join(self.cwd,self.pname,tempdir,output)
 				for line in f.readlines():
 					if search("^ATOM.........CA", line): # get only Calpha atoms
 						fw.write(line)
 						l +=1
 				fw.close()		
 				f.close()
-				chdir(self.cwd+"/"+self.pname+"/"+tempdir)
-				arg = "/home/mjamroz/pycabs/FF/a.out %d %d %d" % (self.seqlen,l,i) # TODO
+				chdir(path.join(self.cwd,self.pname,tempdir))
+				arg = "/home/hydek/pycabs/FF/a.out %d %d %d" % (self.seqlen,l,i) # TODO
 				chainstart = Popen([arg], shell=True, stdout=PIPE)
 				chainstart.communicate()
 				
-				chdir(self.cwd+"/"+self.pname)
+				chdir(path.join(self.cwd,self.pname))
+				print "ASDASDASD",path.join(self.cwd,self.pname)
 				i += 1
 			except IOError as e:
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
@@ -251,7 +255,8 @@ class CABS(threading.Thread):
 		m = len(temp_filenames) # number of templates
 		chains_data = []
 		for i in range(m): # load all chain files into memory
-			chain = open(self.cwd+"/"+self.pname+"/"+tempdir+"/CHAIN"+str(i),"r")
+			print path.join(self.cwd,self.pname,tempdir,"CHAIN"+str(i))
+			chain = open(path.join(self.cwd,self.pname,tempdir,"CHAIN"+str(i)),"r")
 			chains_data.append(chain.readlines())
 			chain.close()
 			
@@ -269,8 +274,6 @@ class CABS(threading.Thread):
 		print Info("FCHAINS file created")
 			
 
-				
-			
 
 
 #33############ Utilities ########################
@@ -464,13 +467,12 @@ class Errors(Exception):
 
 # tests
 if __name__ == "__main__":
-	#data =  parsePorterOutput("/home/mjamroz/pycabs/proba/playground/porter.ss")
+	#data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss")
 
 	working_dir = "modelowanie2pcy"
-	templates = ["/home/mjamroz/pycabs/proba/playground/2pcy_CA.pdb"]
+	templates = ["playground/2pcy_CA.pdb"]
 	a = CABS("IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEEDLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN",\
-    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
-,templates,working_dir)
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",templates,working_dir)
 	a.createLatticeReplicas()
 	a.modeling(cycles=50,phot=5)
 	a.convertPdbToDcd()
