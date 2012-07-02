@@ -3,6 +3,9 @@
 import time,os,threading
 
 class Monitor(threading.Thread):
+	"""
+		Class for monitoring of CABS output data. You can run it and dynamically update output arrays with calculated results.
+	"""	
 	def __init__(self,filename,calculate):
 		threading.Thread.__init__(self)
 		self.daemon = False #: if True, it will terminate when script terminates		
@@ -36,18 +39,12 @@ class Monitor(threading.Thread):
 				self.calc.calculate(self.buf) #update calculate object after each fortran FLUSH 
 				self.buf=[]
 					
-class Calculate:
+class Calculate: # dziedzicz po tym rozne obliczenia
 	def __init__(self,output):
 		self.out = output
 	def calculate(self,data):
 		self.out.append('_'.join(data))	
 								
-			
-out = []						
-calc = Calculate(out) # out is dynamically updated 
-m=Monitor("/tmp/energy",calc)
-m.start()
-print out
-time.sleep(10)
-print out
-m.terminate()
+		
+		
+		
