@@ -3,13 +3,15 @@
 
 from tempfile import mkdtemp
 from re import search,sub
-from os import getcwd,chdir,path
+from os import getcwd,chdir,path,mkdir
 from subprocess import Popen,PIPE
 from shutil import copyfile
 import threading
 
 class CABS(threading.Thread):
-	"""CABS main class.
+	"""
+	
+	CABS main class.
 	
 	:param sequence: one line sequence of the target protein
 	:type sequence: string
@@ -17,36 +19,34 @@ class CABS(threading.Thread):
 	:type secondary_structure: string
 	:param templates_filenames: path to 3D protein model templates in pdb file format which you want to use for modeling. Cα numbering in templates must be aligned to target sequence
 	:type templates_filenames: list
-	:param project_name: files for that particular modeling will be named with prefix project_name.
+	:param project_name: project_name and working directory name (uniq)
 	:type project_name: string
 	
-	.. warning:: it will overwrite previous SEQ file.
 	"""
 
-	def __init__(self,sequence,secondary_structure,templates_filenames, project_name='fnord'):
+	def __init__(self,sequence,secondary_structure,templates_filenames, project_name):
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
 		self.sequence = sequence
 		self.ss = secondary_structure
 		self.templates_fn = templates_filenames
-		
+		self.cwd = getcwd()
+		print self.cwd
 		sub(r'\s', '', project_name)
 		self.pname = project_name
-		
+		mkdir(self.pname)
+		chdir(self.pname)
 		
 		self.seqlen = len(sequence)
 		self.rng_seed = 1799	#: seed for random generator
 		self.constraints = 0
-		# self.replicas - defined in lattie model creation method
+		# self.replicas - defined in lattice model creation method
 		
 		
 		self.seq_trans={'A': "ALA",'R': "ARG",'N':"ASN",'D':"ASP",'C':"CYS",\
 		'E':"GLU",'Q':"GLN",'G':"GLY",'H':"HIS",'I':"ILE",'L':"LEU",\
 		'K':"LYS",'M':"MET",'F':"PHE",'P':"PRO",'S':"SER",'T':"THR",\
 		'W':"TRP",'Y':"TYR",'V':"VAL"}
-		
-		
-		
 		
 		self._createSEQ() # we always need SEQ file so I put it here
 
@@ -101,12 +101,31 @@ class CABS(threading.Thread):
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
 				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")
 				
-				
+	def convertPdbToDcd(self,catdcd_path="/home/hydek/pycabs/FF/catdcd"):
+		"""
+			This is only simple wrapper to CatDCD software (http://www.ks.uiuc.edu/Development/MDTools/catdcd/), 
+			could be usable since \*.dcd binary format is few times lighter than pdb, and many python libraries 
+			(ProDy, MDAnalysis) use \*.dcd as trajectory input format.
+			Before use, download CatDCD from http://www.ks.uiuc.edu/Development/MDTools/catdcd/ and modify catdcd_path.
+			
+		"""
+		output_dcd="TRAF.dcd"
+		input_pdb="TRAF.pdb"
+		if not path.isfile(catdcd_path):
+			raise Errors("You do not have catdcd. Download it from http://www.ks.uiuc.edu/Development/MDTools/catdcd/ , uncompress and give correct path. Buenos dias.")
+		if path.isfile(input_pdb):
+			print Info("Converting PDB into DCD...")
+			catdcd = Popen([catdcd_path+" -o "+output_dcd+" -otype dcd -pdb "+input_pdb], shell=True, stdout=PIPE)
+			catdcd.communicate()
+			
+		else:
+			raise Errors("input pdb file does not exist!")
+						
 	def _copyFFFiles(self):
 		path_to_ff_dir="/home/hydek/pycabs/FF" # TODO
 		for fff in ["R13","R13A","CENTRO","QUASI3S","R13C","R13E",\
 		"R13H","R14","R14A","R14C","R14E","R14H","R15","R15A","R15C",\
-		"R15E","R15H","SIDECENT"]:
+		"R15E","R15H","SIDECENT","TRAF","OUT"]:
 			copyfile(path_to_ff_dir+"/"+fff,"./"+fff)
 			
 	def _copyChains(self):
@@ -118,7 +137,7 @@ class CABS(threading.Thread):
 		self._copyFFFiles()
 		
 		# create INP file
-		
+		#TODO
 		inp = "%5d %5d %5d %5d\n%5.2f %5.2f %5.2f %5.3f %5.3f\n%5.2f %5.2f"\
 		 "%5.2f %5.2f %5.3f\n0. 0 0 0 0\n0.0 0.0 0.0 0.0\n0 0.0\n%5d"\
 		 "%5.2f" %(self.rng_seed,cycles,phot,self.replicas,Htemp,Ltemp,4.0,\
@@ -142,7 +161,7 @@ class CABS(threading.Thread):
 		print Info("Done.")
 		self._copyChains()
 		
-		#self._trafToPdb()
+		self.trafToPdb()
 		
 		
 	def _createSEQ(self):
@@ -189,12 +208,11 @@ class CABS(threading.Thread):
 			
 			.. note:: If number of replicas is smaller than number of templates - program will create replicas using first *replicas* templates. If there is less templates than replicas, they are creating sequentially using template models.
 			
-			.. warning:: it will overwrite FCHAINS file from working directory
 		"""
 		if len(start_structures_fn)==0 and len(self.templates_fn)==0:
 			raise Errors("lists start_structures_fn OR templates_filenames cannot be empty !")
-			
-		tempdir = mkdtemp('',self.pname+'_tmp','.')
+		
+		tempdir = mkdtemp('','tmp','')
 		self.tempdir = tempdir
 		temp_filenames = self.templates_fn
 		if len(start_structures_fn)>0:	# for user selected start models
@@ -207,22 +225,22 @@ class CABS(threading.Thread):
 			l = 0
 			try:
 				print Info("creating lattice model for "+tfn)
-				f = open(tfn,"r") 	
+				f = open(tfn,"r") 	 #TODO
 				output = "/ALIGN%d" % (i)
 
-				fw = open(tempdir+output,"w")
+				fw = open(self.cwd+"/"+self.pname+"/"+tempdir+"/"+output,"w") #TODO
 				for line in f.readlines():
 					if search("^ATOM.........CA", line): # get only Calpha atoms
 						fw.write(line)
 						l +=1
 				fw.close()		
 				f.close()
-				chdir(tempdir)
+				chdir(self.cwd+"/"+self.pname+"/"+tempdir)
 				arg = "/home/hydek/pycabs/FF/a.out %d %d %d" % (self.seqlen,l,i) # TODO
 				chainstart = Popen([arg], shell=True, stdout=PIPE)
 				chainstart.communicate()
-			
-				chdir("../")
+				
+				chdir(self.cwd+"/"+self.pname)
 				i += 1
 			except IOError as e:
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
@@ -232,7 +250,7 @@ class CABS(threading.Thread):
 		m = len(temp_filenames) # number of templates
 		chains_data = []
 		for i in range(m): # load all chain files into memory
-			chain = open(tempdir+"/CHAIN"+str(i),"r")
+			chain = open(self.cwd+"/"+self.pname+"/"+tempdir+"/CHAIN"+str(i),"r")
 			chains_data.append(chain.readlines())
 			chain.close()
 			
@@ -331,24 +349,7 @@ def parsePorterOutput(porter_output_fn):
 		print "I/O error({0}): {1}".format(e.errno, e.strerror)
 	return (seq,ss)
 
-def convertPdbToDcd(catdcd_path="/home/hydek/pycabs/FF/catdcd",output_dcd="TRAF.dcd",input_pdb="TRAF.pdb"):
-	"""
-		This is only simple wrapper to CatDCD software (http://www.ks.uiuc.edu/Development/MDTools/catdcd/), 
-		could be usable since \*.dcd binary format is few times lighter than pdb, and many python libraries 
-		(ProDy, MDAnalysis) use \*.dcd as trajectory input format.
-		Before use, download CatDCD from http://www.ks.uiuc.edu/Development/MDTools/catdcd/ and modify catdcd_path.
-		
-	"""
-	
-	if not path.isfile(catdcd_path):
-		raise Errors("You do not have catdcd. Download it from http://www.ks.uiuc.edu/Development/MDTools/catdcd/ , uncompress and give correct path. Buenos dias.")
-	if path.isfile(input_pdb):
-		print Info("Converting PDB into DCD...")
-		catdcd = Popen([catdcd_path+" -o "+output_dcd+" -otype dcd -pdb "+input_pdb], shell=True, stdout=PIPE)
-		catdcd.communicate()
-		
-	else:
-		raise Errors("input pdb file does not exist!")
+
 		
 class Monitor(threading.Thread):
 	"""
@@ -438,13 +439,14 @@ class Errors(Exception):
 
 # tests
 if __name__ == "__main__":
-	data =  parsePorterOutput("playground/porter.ss")
+	data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss")
 
-	templates = ["playground/2pcy_CA.pdb"]
-	a = CABS(data[0],data[1],templates)
+	working_dir = "modelowanie2pcy"
+	templates = ["/home/hydek/pycabs/proba/playground/2pcy_CA.pdb"]
+	a = CABS(data[0],data[1],templates,working_dir)
 	a.createLatticeReplicas()
 	a.modeling(cycles=2,phot=2)
-	convertPdbToDcd()
+	a.convertPdbToDcd()
 #	print parsePsipredOutput("playground/psipred.ss")
 	
 #out = []						
