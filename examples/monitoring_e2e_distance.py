@@ -5,17 +5,23 @@ import time
 import numpy as np
 import pycabs
 
-class Energy(pycabs.Calculate):
+class E2E(pycabs.Calculate):
     def calculate(self,data):
-        for i in data:
-            self.out.append(float(i)) # ENERGY file contains one value in a row
+        models = self.processTrajectory(data)
+        for m in models:
+            first = m[0:3]
+            last = m[-3:]
+
+            x = first[0]-last[0]
+            y = first[1]-last[1]
+            z = first[2]-last[2]
+            self.out.append(x*x+y*y+z*z)            
             
 out = []						
-calc = Energy(out) # out is dynamically updated 
-m=pycabs.Monitor(argv[1]+"/ENERGY",calc)
+calc = E2E(out) # out is dynamically updated 
+m=pycabs.Monitor(argv[1]+"/TRAF",calc)
 m.daemon = True
 m.start()
-
 
 
 ion()
@@ -23,7 +29,7 @@ y = zeros(1)
 x = zeros(1)
 line, = plot(x,y)
 xlabel('CABS time step')
-ylabel('CABS energy')
+ylabel('square of end to end distance')
 
 while 1:
     time.sleep(1)

@@ -367,6 +367,7 @@ class Monitor(threading.Thread):
 		self.first_mtime = stat(filename).st_mtime
 		self.kill = False
 		self.fb = open(filename)
+        
 		self.buf = [i.strip() for i in self.fb] # get whole file
 		self.position = self.fb.tell() # and save position of eof
 		self.calc = calculate
@@ -411,6 +412,29 @@ class Calculate:
 		self.out = output
 	def calculate(self,data):
 		self.out.append('_'.join(data))	
+    
+	def processTrajectory(self,data):
+		"""
+			Use it in `calculate` method if you parsing TRAF file, and want to calculate something on structure
+            
+			:result: Array of 1D model coordinates
+            
+		"""
+    
+		i=0
+		model=[]
+		mtmp = []
+		for line in data:
+			if "." in line :
+				if(len(mtmp)>0):
+					model.append(mtmp)
+					mtmp = []
+			else:
+				for e in line.split():
+					mtmp.append(0.61*int(e))
+		if len(mtmp)>0:
+			model.append(mtmp[3:-3])
+		return model
 
 
 class Info():
@@ -450,12 +474,5 @@ if __name__ == "__main__":
 	a.createLatticeReplicas()
 	a.modeling(cycles=50,phot=5)
 	a.convertPdbToDcd()
+    
 #	print parsePsipredOutput("playground/psipred.ss")
-#out = []						
-#calc = Calculate(out) # out is dynamically updated 
-#m=Monitor("/tmp/energy",calc)
-#m.start()
-#print out
-#time.sleep(10)
-#print out
-#m.terminate()
