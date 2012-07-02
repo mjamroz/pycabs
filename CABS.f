@@ -158,16 +158,19 @@ c	Strenghts rescaled in this version
 
 	
 	OPEN(UNIT=7, FILE='SEQ',     STATUS='OLD')
-	OPEN(UNIT=6, FILE='OUT',     STATUS='OLD')
+	OPEN(UNIT=6, FILE='OUT',     STATUS='NEW')
 	OPEN(UNIT=5, FILE='INP',     STATUS='OLD')
 	OPEN(UNIT=10,FILE='FCHAINS',  STATUS='OLD')
-	OPEN(UNIT=9, FILE='TRAF',   STATUS='OLD')
+	OPEN(UNIT=9, FILE='TRAF',   STATUS='NEW')
 	OPEN(UNIT=26,FILE='QUASI3S',  STATUS='OLD')
-	OPEN(UNIT=11,FILE='R14',   STATUS='OLD')
+	OPEN(UNIT=11,FILE='R14',   STATUS='OLD') 
+      OPEN(UNIT=23,FILE='ENERGY', STATUS='NEW')
 	OPEN(UNIT=12,FILE='R15',   STATUS='OLD')
 	OPEN(UNIT=13,FILE='R13',   STATUS='OLD')
 	OPEN(UNIT=29,FILE='CENTRO',  STATUS='OLD')
 	OPEN(UNIT=33,FILE='SIDECENT',STATUS='OLD')
+
+    
 	
 c
 c	SEQ sequence   (i  ALA  SECONDARY_STRUCT_code=1,2,4)
@@ -1929,10 +1932,14 @@ c
 
 
 	iiii=(IDDDUM-1)*10+ICYCLE
-	
+	write(23,*) energ
 	WRITE(9,716) IIII, LENF, energ, aarand,abrand
  716	format(2I6, F12.2, 2F7.4)
 	write(9,713)    (x(i),y(i),z(i),i=1,lenf)
+    
+        call flush(9)
+        call flush(23)
+    
  713	format(12I5)
 			
 	c=float(ICYCLE)*PHOT*LENF2*REPLICAS

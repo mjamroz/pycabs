@@ -3,10 +3,11 @@
 
 from tempfile import mkdtemp
 from re import search,sub
-from os import getcwd,chdir,path,mkdir
+from os import getcwd,chdir,path,mkdir,stat
 from subprocess import Popen,PIPE
 from shutil import copyfile
 import threading
+import time
 
 class CABS(threading.Thread):
 	"""
@@ -101,7 +102,7 @@ class CABS(threading.Thread):
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
 				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")
 				
-	def convertPdbToDcd(self,catdcd_path="/home/hydek/pycabs/FF/catdcd"):
+	def convertPdbToDcd(self,catdcd_path="/home/mjamroz/pycabs/FF/catdcd"):
 		"""
 			This is only simple wrapper to CatDCD software (http://www.ks.uiuc.edu/Development/MDTools/catdcd/), 
 			could be usable since \*.dcd binary format is few times lighter than pdb, and many python libraries 
@@ -122,10 +123,10 @@ class CABS(threading.Thread):
 			raise Errors("input pdb file does not exist!")
 						
 	def _copyFFFiles(self):
-		path_to_ff_dir="/home/hydek/pycabs/FF" # TODO
+		path_to_ff_dir="/home/mjamroz/pycabs/FF" # TODO
 		for fff in ["R13","R13A","CENTRO","QUASI3S","R13C","R13E",\
 		"R13H","R14","R14A","R14C","R14E","R14H","R15","R15A","R15C",\
-		"R15E","R15H","SIDECENT","TRAF","OUT"]:
+		"R15E","R15H","SIDECENT"]:
 			copyfile(path_to_ff_dir+"/"+fff,"./"+fff)
 			
 	def _copyChains(self):
@@ -152,7 +153,7 @@ class CABS(threading.Thread):
 		# run CABS	
 		# TODO zmodyfikowac CABS odnosnie OUT i TRAF
 		print Info("CABS started...")
-		path_to_cabs="/home/hydek/pycabs/FF/" # TODO
+		path_to_cabs="/home/mjamroz/pycabs/FF/" # TODO
 		arg = path_to_cabs+"cabs" 
 		
 		cabsstart = Popen([arg], shell=True, stdout=PIPE)
@@ -236,7 +237,7 @@ class CABS(threading.Thread):
 				fw.close()		
 				f.close()
 				chdir(self.cwd+"/"+self.pname+"/"+tempdir)
-				arg = "/home/hydek/pycabs/FF/a.out %d %d %d" % (self.seqlen,l,i) # TODO
+				arg = "/home/mjamroz/pycabs/FF/a.out %d %d %d" % (self.seqlen,l,i) # TODO
 				chainstart = Popen([arg], shell=True, stdout=PIPE)
 				chainstart.communicate()
 				
@@ -363,7 +364,7 @@ class Monitor(threading.Thread):
 		threading.Thread.__init__(self)
 		self.daemon = False #: if True, it will terminate when script terminates		
 		self.f = filename
-		self.first_mtime = os.stat(filename).st_mtime
+		self.first_mtime = stat(filename).st_mtime
 		self.kill = False
 		self.fb = open(filename)
 		self.buf = [i.strip() for i in self.fb] # get whole file
@@ -388,7 +389,7 @@ class Monitor(threading.Thread):
 			if self.kill:
 				return
 			time.sleep(1)
-			mtime = os.stat(self.f).st_mtime
+			mtime = stat(self.f).st_mtime
 			if mtime!=self.first_mtime:
 				self.first_mtime = mtime
 				self.fb.seek(self.position)
@@ -439,16 +440,17 @@ class Errors(Exception):
 
 # tests
 if __name__ == "__main__":
-	data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss")
+	#data =  parsePorterOutput("/home/mjamroz/pycabs/proba/playground/porter.ss")
 
 	working_dir = "modelowanie2pcy"
-	templates = ["/home/hydek/pycabs/proba/playground/2pcy_CA.pdb"]
-	a = CABS(data[0],data[1],templates,working_dir)
+	templates = ["/home/mjamroz/pycabs/proba/playground/2pcy_CA.pdb"]
+	a = CABS("IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEEDLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN",\
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+,templates,working_dir)
 	a.createLatticeReplicas()
-	a.modeling(cycles=2,phot=2)
+	a.modeling(cycles=50,phot=5)
 	a.convertPdbToDcd()
 #	print parsePsipredOutput("playground/psipred.ss")
-	
 #out = []						
 #calc = Calculate(out) # out is dynamically updated 
 #m=Monitor("/tmp/energy",calc)
