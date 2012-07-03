@@ -3,7 +3,7 @@
 
 from tempfile import mkdtemp
 from re import search,sub
-from os import getcwd,chdir,path,mkdir,stat
+from os import getcwd,chdir,path,mkdir,stat,remove,rename
 from subprocess import Popen,PIPE
 from shutil import copyfile
 import threading
@@ -26,8 +26,11 @@ class CABS(threading.Thread):
 	"""
 
 	def __init__(self,sequence,secondary_structure,templates_filenames, project_name):
+		self.FF = "/home/hydek/pycabs/FF" # TODO !!!
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
+		if path.isdir(project_name):
+			raise Errors("Directory "+project_name+" exists. Choose another project name")
 		self.sequence = sequence
 		self.ss = secondary_structure
 		self.templates_fn = templates_filenames
@@ -50,7 +53,16 @@ class CABS(threading.Thread):
 		
 		self._createSEQ() # we always need SEQ file so I put it here
 
-	def calcConstraints(self,exclude_residues=[]): # TODO - update self.constraints
+	def calcConstraints(self,exclude_residues=[],other_constraints=[]): # TODO - update self.constraints
+		"""
+			Calculate distance constraints using templates 3D models. 
+			
+			:param exclude_residues: indexes of residues without constrains
+			:type exclude_residues: list
+			:param other constrains: user-defined constrains as list of tuples: (residue_i_index,residue_j_index,constraint_strength)
+			:type other_constraints: list
+			
+		"""
 		pass
 	def getTraCoordinates(self):
 		pass
@@ -120,17 +132,28 @@ class CABS(threading.Thread):
 			
 		else:
 			raise Errors("input pdb file does not exist!")
-						
+	def _checkOverlaps(self):
+		f = open("OUT")
+		for line in f.readlines():
+			if search("overlaps",line) and int(line.split()[2])>0:
+				print Info(" **WARNING** "+line.strip())
+		f.close()
+					
 	def _copyFFFiles(self):
-		path_to_ff_dir="/home/hydek/pycabs/FF" # TODO
+
 		for fff in ["R13","R13A","CENTRO","QUASI3S","R13C","R13E",\
 		"R13H","R14","R14A","R14C","R14E","R14H","R15","R15A","R15C",\
 		"R15E","R15H","SIDECENT"]:
-			copyfile(path.join(path_to_ff_dir,fff),fff)
-			
+			copyfile(path.join(self.FF,fff),fff)
+	def _removeFFFiles(self):
+		for fff in ["R13","R13A","CENTRO","QUASI3S","R13C","R13E",\
+		"R13H","R14","R14A","R14C","R14E","R14H","R15","R15A","R15C",\
+		"R15E","R15H","SIDECENT"]:
+			remove(fff)
+				
 	def _copyChains(self):
 		copyfile("FCHAINS","FCHAINS_old")
-		copyfile("ACHAINS_NEW","FCHAINS")
+		rename("ACHAINS_NEW","FCHAINS")
 	def setParameters(self,	 Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
 		pass
 	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
@@ -151,15 +174,14 @@ class CABS(threading.Thread):
 		print Info("INP file created")	
 		# run CABS	
 		print Info("CABS started...")
-		path_to_cabs="/home/hydek/pycabs/FF/" # TODO
-		arg = path_to_cabs+"cabs" 
+		arg = path.join(self.FF,"cabs")
 		
 		cabsstart = Popen([arg], shell=True, stdout=PIPE)
 		cabsstart.communicate()
-
-		print Info("Done.")
+		self._checkOverlaps()
+		print Info("CABS Done.")
 		self._copyChains()
-		
+		self._removeFFFiles()
 		self.trafToPdb()
 		
 		
@@ -217,6 +239,7 @@ class CABS(threading.Thread):
 		
 		tempdir = mkdtemp('','tmp','')
 		self.tempdir = tempdir
+		
 		temp_filenames = self.templates_fn
 		if len(start_structures_fn)>0:	# for user selected start models
 			temp_filenames = start_structures_fn
@@ -229,10 +252,7 @@ class CABS(threading.Thread):
 			try:
 				print Info("creating lattice model for "+tfn)
 				f = open(tfn,"r")
-				output = "/ALIGN%d" % (i)
-
-				fw = open(path.join(self.cwd,self.pname,tempdir,output),"w")
-				print "dfsdf",path.join(self.cwd,self.pname,tempdir,output)
+				fw = open(path.join(self.cwd,self.pname,tempdir,"ALIGN%d" % (i)),"w")
 				for line in f.readlines():
 					if search("^ATOM.........CA", line): # get only Calpha atoms
 						fw.write(line)
@@ -240,12 +260,11 @@ class CABS(threading.Thread):
 				fw.close()		
 				f.close()
 				chdir(path.join(self.cwd,self.pname,tempdir))
-				arg = "/home/hydek/pycabs/FF/a.out %d %d %d" % (self.seqlen,l,i) # TODO
+				arg = path.join(self.FF,"a.out")+ " %d %d %d" % (self.seqlen,l,i)
 				chainstart = Popen([arg], shell=True, stdout=PIPE)
 				chainstart.communicate()
 				
 				chdir(path.join(self.cwd,self.pname))
-				print "ASDASDASD",path.join(self.cwd,self.pname)
 				i += 1
 			except IOError as e:
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
@@ -255,7 +274,6 @@ class CABS(threading.Thread):
 		m = len(temp_filenames) # number of templates
 		chains_data = []
 		for i in range(m): # load all chain files into memory
-			print path.join(self.cwd,self.pname,tempdir,"CHAIN"+str(i))
 			chain = open(path.join(self.cwd,self.pname,tempdir,"CHAIN"+str(i)),"r")
 			chains_data.append(chain.readlines())
 			chain.close()
@@ -323,8 +341,6 @@ def parsePorterOutput(porter_output_fn):
 
 			DLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN
 			CCECCCCCEEEEECCCCEEEEEECCHHHHCCCEEEEEEC
-
-		.. note:: Use only sequence/secondary structure fragment of Porter email. #TODO - mozna wywalic male litery
 		
 		:param porter_output_fn: path to the porter output file
 		:type porter_output_fn: string
@@ -338,6 +354,8 @@ def parsePorterOutput(porter_output_fn):
 		f = open(porter_output_fn)
 		i=0
 		for line in f.readlines():
+			if search("[a-z]",line): # ignore lines with small letters - headers/comments
+				continue
 			line = line.strip()
 			if line=="":
 				continue
@@ -467,14 +485,13 @@ class Errors(Exception):
 
 # tests
 if __name__ == "__main__":
-	#data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss")
+	data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss")
 
 	working_dir = "modelowanie2pcy"
-	templates = ["playground/2pcy_CA.pdb"]
-	a = CABS("IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEEDLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN",\
-    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",templates,working_dir)
+	templates = ["/home/hydek/pycabs/playground/2pcy_CA.pdb"]
+	a = CABS(data[0],data[1],templates,working_dir)
 	a.createLatticeReplicas()
-	a.modeling(cycles=50,phot=5)
+	a.modeling(cycles=1,phot=1)
 	a.convertPdbToDcd()
     
 #	print parsePsipredOutput("playground/psipred.ss")
