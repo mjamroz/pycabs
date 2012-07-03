@@ -157,6 +157,8 @@ class CABS(threading.Thread):
 	def setParameters(self,	 Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
 		pass
 	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
+		
+		#preprocessing
 		self._copyFFFiles()
 		
 		# create INP file
@@ -172,14 +174,16 @@ class CABS(threading.Thread):
 		except IOError as e:
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
 		print Info("INP file created")	
+		
 		# run CABS	
 		print Info("CABS started...")
 		arg = path.join(self.FF,"cabs")
-		
 		cabsstart = Popen([arg], shell=True, stdout=PIPE)
 		cabsstart.communicate()
-		self._checkOverlaps()
 		print Info("CABS Done.")
+		
+		# postprocessing
+		self._checkOverlaps()
 		self._copyChains()
 		self._removeFFFiles()
 		self.trafToPdb()
@@ -195,8 +199,7 @@ class CABS(threading.Thread):
 			SEQ is required, and has to be created each time so we added it to __init__ of CABS class. 
 			**WARNING**: It overwrites any SEQ in working directory.
 		"""
-		ss_trans={'C':1,'H':2,'E':4} 
-		# secondary structure 1=coil, 2=helix,  4=beta
+		ss_trans={'C':1,'H':2,'E':4} # secondary structure 1=coil, 2=helix,  4=beta
 
 		seqk = self.seq_trans.keys()
 		ssk = ss_trans.keys()
@@ -244,7 +247,7 @@ class CABS(threading.Thread):
 		if len(start_structures_fn)>0:	# for user selected start models
 			temp_filenames = start_structures_fn
 			
-		# create lattice model of all pdbs
+		# create lattice model of each pdb
 	
 		i = 0
 		for tfn in temp_filenames:
@@ -488,7 +491,7 @@ if __name__ == "__main__":
 	data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss")
 
 	working_dir = "modelowanie2pcy"
-	templates = ["/home/hydek/pycabs/playground/2pcy_CA.pdb"]
+	templates = ["playground/2pcy_CA.pdb"]
 	a = CABS(data[0],data[1],templates,working_dir)
 	a.createLatticeReplicas()
 	a.modeling(cycles=1,phot=1)
