@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyCABS API &mdash; CABS 2012 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2012',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="CABS 2012 documentation" href="index.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CABS 2012 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/logo.jpg" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pycabs">
+<span id="pycabs-api"></span><h1>pyCABS API<a class="headerlink" href="#module-pycabs" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pycabs.CABS">
+<em class="property">class </em><tt class="descclassname">pycabs.</tt><tt class="descname">CABS</tt><big>(</big><em>sequence</em>, <em>secondary_structure</em>, <em>templates_filenames</em>, <em>project_name</em><big>)</big><a class="headerlink" href="#pycabs.CABS" title="Permalink to this definition">¶</a></dt>
+<dd><p>CABS main class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sequence</strong> (<em>string</em>) &#8211; one line sequence of the target protein</li>
+<li><strong>secondary_structure</strong> (<em>string</em>) &#8211; one line secondary structure for the target protein</li>
+<li><strong>templates_filenames</strong> (<em>list</em>) &#8211; path to 3D protein model templates in pdb file format which you want to use for modeling. Cα numbering in templates must be aligned to target sequence</li>
+<li><strong>project_name</strong> (<em>string</em>) &#8211; project_name and working directory name (uniq)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pycabs.CABS.calcConstraints">
+<tt class="descname">calcConstraints</tt><big>(</big><em>exclude_residues=</em><span class="optional">[</span><span class="optional">]</span>, <em>other_constraints=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#pycabs.CABS.calcConstraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate distance constraints using templates 3D models.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exclude_residues</strong> (<em>list</em>) &#8211; indexes of residues without constrains</li>
+<li><strong>constrains</strong> (<em>other</em>) &#8211; user-defined constrains as list of tuples: (residue_i_index,residue_j_index,constraint_strength)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.CABS.convertPdbToDcd">
+<tt class="descname">convertPdbToDcd</tt><big>(</big><em>catdcd_path='/home/hydek/pycabs/FF/catdcd'</em><big>)</big><a class="headerlink" href="#pycabs.CABS.convertPdbToDcd" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is only simple wrapper to CatDCD software (<a class="reference external" href="http://www.ks.uiuc.edu/Development/MDTools/catdcd/">http://www.ks.uiuc.edu/Development/MDTools/catdcd/</a>), 
+could be usable since *.dcd binary format is few times lighter than pdb, and many python libraries 
+(ProDy, MDAnalysis) use *.dcd as trajectory input format.
+Before use, download CatDCD from <a class="reference external" href="http://www.ks.uiuc.edu/Development/MDTools/catdcd/">http://www.ks.uiuc.edu/Development/MDTools/catdcd/</a> and modify catdcd_path.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.CABS.createLatticeReplicas">
+<tt class="descname">createLatticeReplicas</tt><big>(</big><em>start_structures_fn=</em><span class="optional">[</span><span class="optional">]</span>, <em>replicas=20</em><big>)</big><a class="headerlink" href="#pycabs.CABS.createLatticeReplicas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create protein models projected onto CABS lattice, which will be used as replicas.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start_structures_fn</strong> (<em>list</em>) &#8211; list of paths to pdb files which should be used instead of templates models.  This parameter is optional, and probably not often used. Without it script creates replicas from templates files.</li>
+<li><strong>replicas</strong> (<em>integer</em>) &#8211; define number of replicas in CABS simulation. However 20 is optimal for most cases, and you don&#8217;t need to change it in protein modeling case.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If number of replicas is smaller than number of templates - program will create replicas using first <em>replicas</em> templates. If there is less templates than replicas, they are creating sequentially using template models.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pycabs.CABS.rng_seed">
+<tt class="descname">rng_seed</tt><em class="property"> = None</em><a class="headerlink" href="#pycabs.CABS.rng_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>seed for random generator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.CABS.trafToPdb">
+<tt class="descname">trafToPdb</tt><big>(</big><em>output_filename='TRAF.pdb'</em><big>)</big><a class="headerlink" href="#pycabs.CABS.trafToPdb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert TRAF CABS pseudotrajectory file format into multimodel pdb</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pycabs.Calculate">
+<em class="property">class </em><tt class="descclassname">pycabs.</tt><tt class="descname">Calculate</tt><big>(</big><em>output</em><big>)</big><a class="headerlink" href="#pycabs.Calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inherit if you want to process data used with <a class="reference internal" href="#pycabs.Monitor" title="pycabs.Monitor"><tt class="xref py py-class docutils literal"><span class="pre">Monitor</span></tt></a> class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>output</strong> (<em>array/list</em>) &#8211; output array with calculated results</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pycabs.Calculate.processTrajectory">
+<tt class="descname">processTrajectory</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#pycabs.Calculate.processTrajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use it in <cite>calculate</cite> method if you parsing TRAF file, and want to calculate something on structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Result :</th><td class="field-body">Array of 1D model coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pycabs.Errors">
+<em class="property">exception </em><tt class="descclassname">pycabs.</tt><tt class="descname">Errors</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#pycabs.Errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple error messages</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pycabs.Info">
+<em class="property">class </em><tt class="descclassname">pycabs.</tt><tt class="descname">Info</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#pycabs.Info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple message system</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pycabs.Monitor">
+<em class="property">class </em><tt class="descclassname">pycabs.</tt><tt class="descname">Monitor</tt><big>(</big><em>filename</em>, <em>calculate</em><big>)</big><a class="headerlink" href="#pycabs.Monitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for monitoring of CABS output data. You can run it and dynamically update output arrays with calculated results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>calculate</strong> (<a class="reference internal" href="#pycabs.Calculate" title="pycabs.Calculate"><tt class="xref py py-class docutils literal"><span class="pre">Calculate</span></tt></a>) &#8211; what to do with gathered data ?</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pycabs.Monitor.daemon">
+<tt class="descname">daemon</tt><em class="property"> = None</em><a class="headerlink" href="#pycabs.Monitor.daemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>if True, it will terminate when script terminates</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.Monitor.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#pycabs.Monitor.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run monitor in background</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.Monitor.terminate">
+<tt class="descname">terminate</tt><big>(</big><big>)</big><a class="headerlink" href="#pycabs.Monitor.terminate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate monitor</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pycabs.parsePorterOutput">
+<tt class="descclassname">pycabs.</tt><tt class="descname">parsePorterOutput</tt><big>(</big><em>porter_output_fn</em><big>)</big><a class="headerlink" href="#pycabs.parsePorterOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Porter (protein secondary stucture prediction, <a class="reference external" href="http://distill.ucd.ie/porter/">http://distill.ucd.ie/porter/</a>) output parser. 
+Porter emailed output looks like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEE</span>
+<span class="n">CEEEECCCCCCCCEECCEEEECCCCEEEEEECCCCCEEEEECCCCCCCCCCHHHHCCCCC</span>
+
+
+
+<span class="n">DLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN</span>
+<span class="n">CCECCCCCEEEEECCCCEEEEEECCHHHHCCCEEEEEEC</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>porter_output_fn</strong> (<em>string</em>) &#8211; path to the porter output file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tuple (sequence, secondary_structure)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycabs.parsePsipredOutput">
+<tt class="descclassname">pycabs.</tt><tt class="descname">parsePsipredOutput</tt><big>(</big><em>psipred_output_fn</em><big>)</big><a class="headerlink" href="#pycabs.parsePsipredOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Psipred (protein secondary structure prediction, <a class="reference external" href="http://bioinf.cs.ucl.ac.uk/psipred/">http://bioinf.cs.ucl.ac.uk/psipred/</a>) output parser. 
+Psipred output looks like:</p>
+<div class="highlight-python"><pre>&gt; head psipred.ss
+1 P C   1.000  0.000  0.000
+2 K C   0.665  0.000  0.459
+3 A E   0.018  0.000  0.991
+4 L E   0.008  0.000  0.997
+5 I E   0.002  0.000  0.998
+6 V E   0.003  0.000  0.999
+7 Y E   0.033  0.000  0.981</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>psipred_output_fn</strong> (<em>string</em>) &#8211; path to the psipred output file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tuple (sequence, secondary_structure)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">CABS 2012 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andrzej Koliński.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial &mdash; CABS 2012 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2012',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="CABS 2012 documentation" href="index.html" />
+    <link rel="next" title="pyCABS API" href="api.html" />
+    <link rel="prev" title="Welcome to CABS’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="pyCABS API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to CABS’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CABS 2012 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/logo.jpg" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorial</a><ul>
+<li><a class="reference internal" href="#calculating-heat-capacity">Calculating heat capacity, <img class="math" src="_images/math/b29f0a3f7b9b53f6dc306dc135951b8d7b36cfbf.png" alt="C_v"/></a></li>
+<li><a class="reference internal" href="#monitoring-of-cabs-energy-during-simulation">Monitoring of CABS energy during simulation</a></li>
+<li><a class="reference internal" href="#monitoring-of-end-to-end-distance-of-chain-during-simulation">Monitoring of end-to-end distance of chain during simulation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to CABS&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">pyCABS API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>Lorem ipsum, example of image insertion from script</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Ellipse</span>
+
+<span class="n">delta</span> <span class="o">=</span> <span class="mf">45.0</span> <span class="c"># degrees</span>
+
+<span class="n">angles</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">360</span><span class="o">+</span><span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+<span class="n">ells</span> <span class="o">=</span> <span class="p">[</span><span class="n">Ellipse</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">]</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ells</span><span class="p">:</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">set_clip_box</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+<span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>[<a class="reference external" href="./plot_directive/../examples/ellipses.py">source code</a>, <a class="reference external" href="./plot_directive/../examples/ellipses.hires.png">hires.png</a>, <a class="reference external" href="./plot_directive/../examples/ellipses.pdf">pdf</a>]</p>
+<div class="figure">
+<img alt="_images/ellipses.png" src="_images/ellipses.png" />
+</div>
+<div class="section" id="calculating-heat-capacity">
+<h2>Calculating heat capacity, <img class="math" src="_images/math/b29f0a3f7b9b53f6dc306dc135951b8d7b36cfbf.png" alt="C_v"/><a class="headerlink" href="#calculating-heat-capacity" title="Permalink to this headline">¶</a></h2>
+<div class="math">
+<p><img src="_images/math/d67295ef97d522c318c2114f70e597207fdf6d15.png" alt="C_v(T) = \frac{\left&lt;E^2\right&gt; - \left&lt;E\right&gt;^2}{T^2}"/></p>
+</div><div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="kn">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pycabs</span>
+
+
+<span class="k">def</span> <span class="nf">runCABS</span><span class="p">(</span><span class="n">temperature</span><span class="p">):</span>
+	<span class="c"># global for simplify arguments </span>
+	<span class="k">global</span> <span class="n">name</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span> 
+	
+	<span class="c"># function for running CABS with different temperatures</span>
+	<span class="c"># it will compute in directory name+_+temperature</span>
+	<span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="c"># since pycabs changing directories...</span>
+	<span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">name</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
+	<span class="n">a</span><span class="o">.</span><span class="n">createLatticeReplicas</span><span class="p">(</span><span class="n">replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">85</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+	<span class="c">#remember to come back to `here` directory</span>
+	<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">here</span><span class="p">)</span>
+
+
+<span class="c">#init these variables _before_ running cabs</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">&quot;fnord&quot;</span>
+<span class="c"># we have some template, it has to be as list</span>
+<span class="n">template</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;/home/hydek/pycabs/playground/2pcy.pdb&quot;</span><span class="p">]</span> 
+<span class="c"># suppose we have porter prediction of sec. str.</span>
+<span class="n">sss</span> <span class="o">=</span>  <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/hydek/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> 
+<span class="n">sequence</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">secstr</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="c"># now we have all data required to run CABS</span>
+
+<span class="n">temp_from</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="n">temp_to</span>  <span class="o">=</span> <span class="mf">4.0</span>
+<span class="n">temp_interval</span> <span class="o">=</span> <span class="mf">0.07</span>
+<span class="n">temperatures</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">,</span><span class="n">temp_interval</span><span class="p">)</span> <span class="c"># ranges of temperature</span>
+
+<span class="c"># create thread pool  with two parallel threads</span>
+<span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">runCABS</span><span class="p">,</span><span class="n">temperatures</span><span class="p">)</span> <span class="c"># run cabs threads</span>
+
+<span class="c"># HERE IS THE END OF PART WHERE WE RUN CABS in parallel fashion. </span>
+
+<span class="c"># Now you can do something with output data, we&#39;ll calculate heat capacity, Cv:</span>
+<span class="n">cv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)):</span>
+	<span class="n">t</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+	<span class="n">e_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="o">+</span><span class="s">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">),</span><span class="s">&#39;ENERGY&#39;</span><span class="p">)</span>
+	<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">e_path</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> <span class="c"># read ENERGY data into array `energy`</span>
+	<span class="n">avg_energy2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">energy</span><span class="o">*</span><span class="n">energy</span><span class="p">)</span> <span class="c"># &lt;E^2&gt;</span>
+	<span class="n">avg_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>		    <span class="c"># &lt;E&gt;^2</span>
+	<span class="n">cv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">avg_energy2</span> <span class="o">-</span> <span class="n">avg_energy</span><span class="o">*</span><span class="n">avg_energy</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">t</span><span class="o">*</span><span class="n">t</span><span class="p">)</span> <span class="c"># (&lt;E^2&gt; - &lt;E&gt;^2) / T^2</span>
+<span class="c"># now we have heat capacity in cv array	</span>
+
+<span class="c"># ... and display plot</span>
+<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;temperature $T$&#39;</span><span class="p">)</span>
+<span class="n">ylabel</span><span class="p">(</span><span class="s">r&#39;heat capacity $C_v = (\left&lt;E^2\right&gt; - \left&lt;E\right&gt;^2)/T^2$&#39;</span> <span class="p">)</span>
+<span class="n">xlim</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">)</span> <span class="c"># xrange</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span><span class="n">cv</span><span class="p">)</span>
+<span class="n">show</span><span class="p">()</span>
+
+<span class="c">#remember that you have name+_+temperature directories, delete it or sth</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="monitoring-of-cabs-energy-during-simulation">
+<h2>Monitoring of CABS energy during simulation<a class="headerlink" href="#monitoring-of-cabs-energy-during-simulation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">argv</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pycabs</span>
+
+<span class="k">class</span> <span class="nc">Energy</span><span class="p">(</span><span class="n">pycabs</span><span class="o">.</span><span class="n">Calculate</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="c"># ENERGY file contains one value in a row</span>
+            
+<span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>						
+<span class="n">calc</span> <span class="o">=</span> <span class="n">Energy</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="c"># out is dynamically updated </span>
+<span class="n">m</span><span class="o">=</span><span class="n">pycabs</span><span class="o">.</span><span class="n">Monitor</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s">&quot;ENERGY&quot;</span><span class="p">),</span><span class="n">calc</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+
+
+<span class="n">ion</span><span class="p">()</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+<span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;CABS time step&#39;</span><span class="p">)</span>
+<span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;CABS energy&#39;</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+    <span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">amax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">amin</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="n">amax</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">+</span><span class="mi">5</span> <span class="p">])</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>  <span class="c"># update the data</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">set_xdata</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">draw</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="monitoring-of-end-to-end-distance-of-chain-during-simulation">
+<h2>Monitoring of end-to-end distance of chain during simulation<a class="headerlink" href="#monitoring-of-end-to-end-distance-of-chain-during-simulation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">argv</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pycabs</span>
+
+<span class="k">class</span> <span class="nc">E2E</span><span class="p">(</span><span class="n">pycabs</span><span class="o">.</span><span class="n">Calculate</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">processTrajectory</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
+
+            <span class="n">x</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">last</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">last</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">last</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="n">y</span><span class="o">*</span><span class="n">y</span><span class="o">+</span><span class="n">z</span><span class="o">*</span><span class="n">z</span><span class="p">)</span>            
+            
+<span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>						
+<span class="n">calc</span> <span class="o">=</span> <span class="n">E2E</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="c"># out is dynamically updated </span>
+<span class="n">m</span><span class="o">=</span><span class="n">pycabs</span><span class="o">.</span><span class="n">Monitor</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s">&quot;TRAF&quot;</span><span class="p">),</span><span class="n">calc</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+
+<span class="n">ion</span><span class="p">()</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+<span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;CABS time step&#39;</span><span class="p">)</span>
+<span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;square of end to end distance&#39;</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+    <span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">amax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">amin</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="n">amax</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">+</span><span class="mi">5</span> <span class="p">])</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>  <span class="c"># update the data</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">set_xdata</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">draw</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="pyCABS API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to CABS’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">CABS 2012 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andrzej Koliński.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
