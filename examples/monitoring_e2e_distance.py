@@ -2,6 +2,7 @@
 from pylab import *
 from sys import argv
 import time
+import os
 import numpy as np
 import pycabs
 
@@ -19,7 +20,7 @@ class E2E(pycabs.Calculate):
             
 out = []						
 calc = E2E(out) # out is dynamically updated 
-m=pycabs.Monitor(argv[1]+"/TRAF",calc)
+m=pycabs.Monitor(os.path.join(argv[1],"TRAF"),calc)
 m.daemon = True
 m.start()
 

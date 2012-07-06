@@ -12,7 +12,7 @@ class Energy(pycabs.Calculate):
             
 out = []						
 calc = Energy(out) # out is dynamically updated 
-m=pycabs.Monitor(argv[1]+"/ENERGY",calc)
+m=pycabs.Monitor(os.path.join(argv[1],"ENERGY"),calc)
 m.daemon = True
 m.start()
 
