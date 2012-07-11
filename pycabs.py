@@ -6,6 +6,7 @@ from re import search,sub
 from os import getcwd,chdir,path,mkdir,stat,remove,rename
 from subprocess import Popen,PIPE
 from shutil import copyfile
+from math import sqrt,cos,sin,atan2
 import threading
 import time
 
@@ -441,7 +442,7 @@ class Calculate:
 		"""
 			Use it in `calculate` method if you parsing TRAF file, and want to calculate something on structure
             
-			:result: Array of 1D model coordinates
+			:result: array of model coordinates
             
 		"""
     
@@ -461,6 +462,131 @@ class Calculate:
 		return model
 
 
+def rmsd(reference,arr):
+	"""
+		Calculate coordinate Root Mean Square Deviation between two sets of coordinates.
+		
+		.. math::
+		
+			cRMSD = \sqrt{ \sum_{i=1}^N \|x_{i} - y_{i}\|^2 \over N}
+   
+		:param reference: 1D list of coordinates (length 3N)
+		:type reference: list
+		:param arr: 1D list of coordinates (length 3N)
+		:type arr: list
+		
+	"""
+		
+	l = len(m1)
+	invlen = 3.0/l
+	# move to 0,0,0
+	x_cm=y_cm=z_cm=0.0
+	ax_cm=ay_cm=az_cm=0.0
+	
+	for a in range(0,l-2,3):
+		x_cm +=reference[a]
+		y_cm +=reference[a+1]
+		z_cm +=reference[a+2]
+		ax_cm +=arr[a]
+		ay_cm +=arr[a+1]
+		az_cm +=arr[a+2]
+	x_cm *=invlen
+	y_cm *=invlen
+	z_cm *=invlen
+	ax_cm *=invlen
+	ay_cm *=invlen
+	az_cm *=invlen
+	for a in range(0,l-2,3):
+		reference[a] -=x_cm
+		reference[a+1] -=y_cm
+		reference[a+2] -=z_cm
+		arr[a] -= ax_cm
+		arr[a+1] -= ay_cm
+		arr[a+2] -= az_cm
+		
+	covmat0=covmat1=covmat2=covmat3=covmat4=covmat5=covmat6=covmat7=covmat8=Rg=0
+	for a in range(0,l-2,3):
+		s_i_x = reference[a]
+		s_i_y = reference[a+1]
+		s_i_z = reference[a+2]
+		s_j_x = arr[a]
+		s_j_y = arr[a+1]
+		s_j_z = arr[a+2]
+		covmat0 += s_i_x*s_j_x
+		covmat1 += s_i_y*s_j_x
+		covmat2 += s_i_z*s_j_x
+		covmat3 += s_i_x*s_j_y
+		covmat4 += s_i_y*s_j_y
+		covmat5 += s_i_z*s_j_y
+		covmat6 += s_i_x*s_j_z
+		covmat7 += s_i_y*s_j_z
+		covmat8 += s_i_z*s_j_z
+		Rg +=  s_i_x*s_i_x + s_j_x*s_j_x
+		Rg +=  s_i_y*s_i_y + s_j_y*s_j_y
+		Rg +=  s_i_z*s_i_z + s_j_z*s_j_z
+	
+	Rg *= invlen
+	covmat0 *= invlen
+	covmat1 *= invlen
+	covmat2 *= invlen
+	covmat3 *= invlen
+	covmat4 *= invlen
+	covmat5 *= invlen
+	covmat6 *= invlen
+	covmat7 *= invlen
+	covmat8 *= invlen
+	
+	determinant = covmat0*(covmat4*covmat8 - covmat5*covmat7) - \
+	covmat1*(covmat3*covmat8-covmat5*covmat6) + covmat2*\
+	(covmat3*covmat7-covmat4*covmat6)
+	sign = 1.0
+	if (determinant<0.0): sign = -1.0
+	 
+	r0 = covmat0*covmat0 +    covmat3*covmat3 + covmat6*covmat6
+	r1 = covmat0*covmat1 +    covmat3*covmat4 + covmat6*covmat7
+	r2 = covmat0*covmat2 +    covmat3*covmat5 + covmat6*covmat8
+	r4 = covmat1*covmat1 +    covmat4*covmat4 + covmat7*covmat7
+	r5 = covmat1*covmat2 +    covmat4*covmat5 + covmat7*covmat8
+	r8 = covmat2*covmat2 +    covmat5*covmat5 + covmat8*covmat8
+	
+	inv3 = 1.0/3.0
+	root3 = 1.732050807568877294
+	c0 = r0*r4*r8 + 2.0*r1*r2*r5 - r0*r5*r5 - r4*r2*r2 - r8*r1*r1
+	c1 = r0*r4 - r1*r1 + r0*r8 - r2*r2 + r4*r8 - r5*r5
+	c2 = r0+r4+r8
+	c2Div3 = c2*inv3
+	aDiv3 = (c1-c2*c2Div3)*inv3
+	if(aDiv3>0.0): aDiv3 = 0.0
+	mbDiv2 = 0.5*(c0+c2Div3*(2.0*c2Div3*c2Div3 - c1))
+	q = mbDiv2*mbDiv2 + aDiv3*aDiv3*aDiv3
+	if (q>0.0): q=0.0
+
+	magnitude = sqrt(-aDiv3)
+	angle = atan2(sqrt(-1.0*q),mbDiv2)/3.0;
+	sn=sin(angle)
+	cs=cos(angle)
+	magnitudecs = magnitude*cs
+	magnituderoot = magnitude*root3*sn
+
+	root0 = c2Div3 + 2.0*magnitudecs
+	root1 = c2Div3 - magnitudecs - magnituderoot
+	root2 = c2Div3 - magnitudecs +magnituderoot
+    
+	if (abs(root0)<1e-6): root0 = 0.0
+	if (abs(root1)<1e-6): root1 = 0.0
+	if (abs(root2)<1e-6): root2 = 0.0
+    
+	roots = [root0,root1,root2]
+
+	roots.sort()
+	minr=roots[0]
+	midr=roots[1]
+	maxr=roots[2]
+	dwa = 2.0*(sqrt(maxr) + sqrt(midr) + sign*sqrt(minr) )
+	rms = sqrt(Rg - dwa )
+	if(rms<1e-5): rms=0.0
+	return rms
+	
 class Info():
 	"""
 		Simple message system
@@ -491,10 +617,10 @@ if __name__ == "__main__":
 	data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss")
 
 	working_dir = "modelowanie2pcy"
-	templates = ["playground/2pcy_CA.pdb"]
+	templates = ["/home/hydek/pycabs/playground/2pcy_CA.pdb"]
 	a = CABS(data[0],data[1],templates,working_dir)
 	a.createLatticeReplicas()
-	a.modeling(cycles=1,phot=1)
+	a.modeling()
 	a.convertPdbToDcd()
     
 #	print parsePsipredOutput("playground/psipred.ss")

@@ -3,10 +3,6 @@
 Tutorial
 =========
 
-Lorem ipsum, example of image insertion from script
-
-.. plot:: ../examples/ellipses.py
-   :include-source:
 
 Calculating heat capacity, :math:`C_v` 
 =======================================

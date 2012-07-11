@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from pylab import *
 from sys import argv
+import os
 import time
 import numpy as np
 import pycabs
