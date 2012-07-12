@@ -641,7 +641,10 @@ def rmsd(reference,arr):
 	midr=roots[1]
 	maxr=roots[2]
 	dwa = 2.0*(sqrt(maxr) + sqrt(midr) + sign*sqrt(minr) )
-	rms = sqrt(Rg - dwa )
+	if dwa>Rg:
+		rms = 0.0
+	else:
+		rms = sqrt(Rg - dwa)
 	if(rms<1e-5): rms=0.0
 	return rms
 	
@@ -680,7 +683,9 @@ if __name__ == "__main__":
 	a.createLatticeReplicas()
 	a.modeling()
 	tr = a.getTraCoordinates()
-	print "RMSD ",rmsd(tr[1],tr[2])
+	for i in range(len(tr)):
+		for j in range(len(tr)):
+			print i,j,rmsd(tr[i],tr[j])
 
 	a.convertPdbToDcd()
     
