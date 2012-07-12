@@ -1,9 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+pyCABS Copyright (C) 2012 Michal Jamroz <jamroz@chem.uw.edu.pl>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
 
 from tempfile import mkdtemp
 from re import search,sub
 from os import getcwd,chdir,path,mkdir,stat,remove,rename
+from numpy import fromfile
 from subprocess import Popen,PIPE
 from shutil import copyfile
 from math import sqrt,cos,sin,atan2
@@ -65,10 +83,26 @@ class CABS(threading.Thread):
 			
 		"""
 		pass
+	def getEnergy(self):
+		"""
+			Read CABS energy values into list
+			
+			:return: list of models energy
+			
+		"""
+		if path.isfile("ENERGY"):
+			try:
+				energy = fromfile(e_path,sep='\n') # read ENERGY data into array `energy`
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				raise Errors("Maybe there is no ENERGY file in current directory, did you run CABS.modeling method before?")
+			return energy
+			
 	def getTraCoordinates(self):
 		"""
-			read trajectory file into 2D list of coordinates
+			Read trajectory file into 2D list of coordinates
 			
+			:return: 2D list of trajectory coordinates
 		"""
 		trajectory = []
 		if path.isfile("TRAF"):
@@ -466,7 +500,7 @@ class Calculate:
 		"""
 			Use it in `calculate` method if you parsing TRAF file, and want to calculate something on structure
             
-			:result: array of model coordinates
+			:return: array of model coordinates
             
 		"""
     
@@ -494,11 +528,11 @@ def rmsd(reference,arr):
 		
 			cRMSD = \sqrt{ \sum_{i=1}^N \|x_{i} - y_{i}\|^2 \over N}
    
-		:param reference: 1D list of coordinates (length 3N)
+		:param reference: 1D list of coordinates (length of 3N)
 		:type reference: list
-		:param arr: 1D list of coordinates (length 3N)
+		:param arr: 1D list of coordinates (length of 3N)
 		:type arr: list
-		:return: RMSD after optimal superimposition
+		:return: RMSD value after optimal superimposition of two structures
 	"""
 		
 	l = len(arr)
@@ -647,7 +681,7 @@ if __name__ == "__main__":
 	a.modeling()
 	tr = a.getTraCoordinates()
 	print "RMSD ",rmsd(tr[1],tr[2])
-	print tr[-1]
+
 	a.convertPdbToDcd()
     
 #	print parsePsipredOutput("playground/psipred.ss")
