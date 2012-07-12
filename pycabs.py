@@ -66,7 +66,31 @@ class CABS(threading.Thread):
 		"""
 		pass
 	def getTraCoordinates(self):
-		pass
+		"""
+			read trajectory file into 2D list of coordinates
+			
+		"""
+		trajectory = []
+		if path.isfile("TRAF"):
+			try:
+				traf = open("TRAF")
+				t = traf.readlines()
+				traf.close()
+				model = []
+				for l in t[1:]:
+					if "." in l: # "." is only in TRAF header	
+						model = model[3:-3] # skip dummy atoms
+						trajectory.append(model)
+						model = []
+					else:	# load coordinates
+						for coord in l.split(): model.append(int(coord)*0.61) 
+				model = model[3:-3] # skip dummy atoms
+				trajectory.append(model)
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")		
+		return trajectory
+		
 	def trafToPdb(self, output_filename = "TRAF.pdb"):
 		""" 
 			Convert TRAF CABS pseudotrajectory file format into multimodel pdb
@@ -157,7 +181,7 @@ class CABS(threading.Thread):
 		rename("ACHAINS_NEW","FCHAINS")
 	def setParameters(self,	 Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
 		pass
-	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
+	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=1,phot=1,constraints_force=1.0):
 		
 		#preprocessing
 		self._copyFFFiles()
@@ -474,10 +498,10 @@ def rmsd(reference,arr):
 		:type reference: list
 		:param arr: 1D list of coordinates (length 3N)
 		:type arr: list
-		
+		:return: RMSD after optimal superimposition
 	"""
 		
-	l = len(m1)
+	l = len(arr)
 	invlen = 3.0/l
 	# move to 0,0,0
 	x_cm=y_cm=z_cm=0.0
@@ -621,6 +645,9 @@ if __name__ == "__main__":
 	a = CABS(data[0],data[1],templates,working_dir)
 	a.createLatticeReplicas()
 	a.modeling()
+	tr = a.getTraCoordinates()
+	print "RMSD ",rmsd(tr[1],tr[2])
+	print tr[-1]
 	a.convertPdbToDcd()
     
 #	print parsePsipredOutput("playground/psipred.ss")
