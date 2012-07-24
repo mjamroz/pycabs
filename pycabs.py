@@ -82,6 +82,7 @@ class CABS(threading.Thread):
 			:type other_constraints: list
 			
 		"""
+		# d=(int)1.7d
 		pass
 	def getEnergy(self):
 		"""
@@ -680,13 +681,13 @@ if __name__ == "__main__":
 	working_dir = "modelowanie2pcy"
 	templates = ["/home/hydek/pycabs/playground/2pcy_CA.pdb"]
 	a = CABS(data[0],data[1],templates,working_dir)
-	a.createLatticeReplicas()
-	a.modeling()
-	tr = a.getTraCoordinates()
-	for i in range(len(tr)):
-		for j in range(len(tr)):
-			print i,j,rmsd(tr[i],tr[j])
+	#a.createLatticeReplicas()
+	#a.modeling()
+	#tr = a.getTraCoordinates()
+	#for i in range(len(tr)):
+	#	for j in range(len(tr)):
+	#		print i,j,rmsd(tr[i],tr[j])
 
-	a.convertPdbToDcd()
+	#a.convertPdbToDcd()
     
 #	print parsePsipredOutput("playground/psipred.ss")
