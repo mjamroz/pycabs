@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from re import compile,match
-from numpy import reshape
+from numpy import reshape,linalg
 class Template:
 	
 	"""
@@ -23,13 +23,26 @@ class Template:
 		f.close()
 		self.coordinates = reshape(coordinateslist,(-1,3)) # magic, reshape list of xyzxyz into Nx3 array
 		coordinateslist = []
+		self.residues = self.hashmap.keys()
 	def printCoordinates(self):	
 		for i in self.hashmap.keys():
 			print i,self.hashmap[i],self.coordinates[self.hashmap[i]]
-
+	def getCoordinate(self,residue_index):
+		idx = int(residue_index)
+		if idx in self.residues:
+			return self.coordinates[idx]
+	def distance(self,idx_i,idx_j):
+		i = int(idx_i)
+		j = int(idx_j)
+		if i in self.residues and j in self.residues:
+			vi = self.coordinates[i]
+			vj = self.coordinates[j]
+			return linalg.norm(vi-vj)
 
 
 
 
 a = Template("./playground/2pcy.pdb")
-a.printCoordinates()
+for i in range(1,98):
+	print i,i+1, a.distance(i,i+1)
+	
