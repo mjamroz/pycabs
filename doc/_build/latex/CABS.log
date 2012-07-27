@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.11 (TeX Live 2010) (format=pdflatex 2011.4.17)  6 JUL 2012 09:48
+This is pdfTeX, Version 3.1415926-1.40.11 (TeX Live 2010) (format=pdflatex 2011.4.17)  25 JUL 2012 16:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -797,11 +797,7 @@ Package: hypcap 2008/09/08 v1.10 Adjusting anchors of captions (HO)
 
 
 Writing index file CABS.idx
-(./CABS.aux
-
-LaTeX Warning: Label `index::doc' multiply defined.
-
-)
+(./CABS.aux)
 \openout1 = `CABS.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 113.
@@ -925,91 +921,109 @@ s been already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.116 \tableofcontents
-                       [2]
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 122.
- (/usr/share/texmf/tex/latex/psnfss/t1pcr.fd
+                       [2] [1
+
+] [2
+
+]
+Chapter 1.
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <14.4> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 123.
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 126.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `subscript' on input line 126.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 126.
+
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 130.
+(/usr/share/texmf/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
+LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <9> not available
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 131.
+LaTeX Font Info:    Font shape `T1/pcr/bx/n' in size <9> not available
+(Font)              Font shape `T1/pcr/b/n' tried instead on input line 132.
+ [3] [4] [5] [6]
+Chapter 2.
 LaTeX Font Info:    Font shape `T1/pcr/bx/n' in size <10> not available
-(Font)              Font shape `T1/pcr/b/n' tried instead on input line 122.
-LaTeX Font Info:    Try loading font information for TS1+ptm on input line 126.
-
+(Font)              Font shape `T1/pcr/b/n' tried instead on input line 306.
+LaTeX Font Info:    Try loading font information for TS1+ptm on input line 310.
 
 (/usr/share/texmf/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-Underfull \hbox (badness 10000) in paragraph at lines 152--153
+Underfull \hbox (badness 10000) in paragraph at lines 336--337
 []\T1/ptm/b/n/10 constrains \T1/ptm/m/n/10 (\T1/ptm/m/it/10 other\T1/ptm/m/n/10
  ) -- user-defined con-strains as list of tu-ples:
  []
 
 
-Overfull \hbox (2.12001pt too wide) in paragraph at lines 164--168
+Overfull \hbox (2.12001pt too wide) in paragraph at lines 348--352
 \T1/ptm/m/n/10 This is only sim-ple wrap-per to Cat-DCD soft-ware ([][]http://w
 ww.ks.uiuc.edu/Development/MDTools/catdcd/[][]),
  []
 
-[1
+[7
+
+] [8]
+
+Package amsmath Warning: Foreign command \over;
+(amsmath)                \frac or \genfrac should be used instead
+(amsmath)                 on input line 597.
+
+[9] [10
 
 ]
-LaTeX Font Info:    Font shape `T1/pcr/bx/n' in size <9> not available
-(Font)              Font shape `T1/pcr/b/n' tried instead on input line 351.
-LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <9> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 354.
- [2] <ellipses.pdf, id=75, 578.16pt x 433.62pt>
-File: ellipses.pdf Graphic file (type pdf)
- <use ellipses.pdf>
-File: ellipses.pdf Graphic file (type pdf)
+Chapter 3.
+[11] [12
 
-<use ellipses.pdf> [3 <./ellipses.pdf>] [4
-
-]
-Chapter 1.
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 378.
-[5] [6
-
-] [7
+] [13
 
 
-] (./CABS.ind [8
+] (./CABS.ind [14
 
 
-] [9
+] [15
 
 
 ])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 401.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 401.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 639.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 639.
  (./CABS.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 401.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 639.
 Package rerunfilecheck Info: File `CABS.out' has not changed.
-(rerunfilecheck)             Checksum: 387E495056AC7874B8931AC010E8C3B9;151.
-
-
-LaTeX Warning: There were multiply-defined labels.
-
+(rerunfilecheck)             Checksum: 1B492E63CBBB82FCEADC5CDE938EF3F7;509.
  ) 
 Here is how much of TeX's memory you used:
- 8486 strings out of 493747
- 115592 string characters out of 3151242
- 209893 words of memory out of 3500000
- 11515 multiletter control sequences out of 15000+200000
- 54801 words of font info for 66 fonts, out of 3000000 for 9000
+ 8528 strings out of 493747
+ 116237 string characters out of 3151242
+ 210526 words of memory out of 3500000
+ 11542 multiletter control sequences out of 15000+200000
+ 55938 words of font info for 70 fonts, out of 3000000 for 9000
  715 hyphenation exceptions out of 8191
- 38i,11n,45p,298b,398s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 38i,15n,45p,363b,619s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/share/texmf/fonts/enc/dvips/base/8r.enc}</usr/share/texmf/fonts/type1/p
-ublic/amsfonts/cm/cmmi10.pfb></usr/share/texmf/fonts/type1/urw/courier/ucrb8a.p
-fb></usr/share/texmf/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf/fonts
-/type1/urw/courier/ucrro8a.pfb></usr/share/texmf/fonts/type1/urw/helvetic/uhvb8
-a.pfb></usr/share/texmf/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/share/texmf/
-fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf/fonts/type1/urw/times/utm
-b8a.pfb></usr/share/texmf/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf/fo
-nts/type1/urw/times/utmri8a.pfb>
-Output written on CABS.pdf (13 pages, 120104 bytes).
+ublic/amsfonts/cm/cmex10.pfb></usr/share/texmf/fonts/type1/public/amsfonts/cm/c
+mmi10.pfb></usr/share/texmf/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/sha
+re/texmf/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf/fonts/type1
+/public/amsfonts/cm/cmr10.pfb></usr/share/texmf/fonts/type1/public/amsfonts/cm/
+cmr7.pfb></usr/share/texmf/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/shar
+e/texmf/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texmf/fonts/type1/urw/co
+urier/ucrr8a.pfb></usr/share/texmf/fonts/type1/urw/courier/ucrro8a.pfb></usr/sh
+are/texmf/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texmf/fonts/type1/urw
+/helvetic/uhvbo8a.pfb></usr/share/texmf/fonts/type1/urw/helvetic/uhvr8a.pfb></u
+sr/share/texmf/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf/fonts/type1/u
+rw/times/utmr8a.pfb></usr/share/texmf/fonts/type1/urw/times/utmri8a.pfb>
+Output written on CABS.pdf (19 pages, 187067 bytes).
 PDF statistics:
- 182 PDF objects out of 1000 (max. 8388607)
- 146 compressed objects within 2 object streams
- 33 named destinations out of 1000 (max. 500000)
- 30 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 260 PDF objects out of 1000 (max. 8388607)
+ 220 compressed objects within 3 object streams
+ 49 named destinations out of 1000 (max. 500000)
+ 65 words of extra memory for PDF output out of 10000 (max. 10000000)
 

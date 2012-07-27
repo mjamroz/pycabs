@@ -2,43 +2,51 @@
 \def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 
   \bigletter C
-  \item CABS (class in pycabs), \hyperpage{1}
-  \item calcConstraints() (pycabs.CABS method), \hyperpage{1}
-  \item Calculate (class in pycabs), \hyperpage{1}
-  \item convertPdbToDcd() (pycabs.CABS method), \hyperpage{1}
-  \item createLatticeReplicas() (pycabs.CABS method), \hyperpage{1}
+  \item CABS (class in pycabs), \hyperpage{7}
+  \item calcConstraints() (pycabs.CABS method), \hyperpage{7}
+  \item Calculate (class in pycabs), \hyperpage{8}
+  \item convertPdbToDcd() (pycabs.CABS method), \hyperpage{7}
+  \item createLatticeReplicas() (pycabs.CABS method), \hyperpage{7}
 
   \indexspace
   \bigletter D
-  \item daemon (pycabs.Monitor attribute), \hyperpage{2}
+  \item daemon (pycabs.Monitor attribute), \hyperpage{8}
+  \item distance() (pycabs.Template method), \hyperpage{8}
 
   \indexspace
   \bigletter E
-  \item Errors, \hyperpage{1}
+  \item Errors, \hyperpage{8}
+
+  \indexspace
+  \bigletter G
+  \item getEnergy() (pycabs.CABS method), \hyperpage{8}
+  \item getTraCoordinates() (pycabs.CABS method), \hyperpage{8}
 
   \indexspace
   \bigletter I
-  \item Info (class in pycabs), \hyperpage{2}
+  \item Info (class in pycabs), \hyperpage{8}
 
   \indexspace
   \bigletter M
-  \item Monitor (class in pycabs), \hyperpage{2}
+  \item Monitor (class in pycabs), \hyperpage{8}
 
   \indexspace
   \bigletter P
-  \item parsePorterOutput() (in module pycabs), \hyperpage{2}
-  \item parsePsipredOutput() (in module pycabs), \hyperpage{2}
-  \item processTrajectory() (pycabs.Calculate method), \hyperpage{1}
-  \item pycabs (module), \hyperpage{1}
+  \item parsePorterOutput() (in module pycabs), \hyperpage{9}
+  \item parsePsipredOutput() (in module pycabs), \hyperpage{9}
+  \item processTrajectory() (pycabs.Calculate method), \hyperpage{8}
+  \item pycabs (module), \hyperpage{7}
 
   \indexspace
   \bigletter R
-  \item rng\_seed (pycabs.CABS attribute), \hyperpage{1}
-  \item run() (pycabs.Monitor method), \hyperpage{2}
+  \item rmsd() (in module pycabs), \hyperpage{9}
+  \item rng\_seed (pycabs.CABS attribute), \hyperpage{8}
+  \item run() (pycabs.Monitor method), \hyperpage{8}
 
   \indexspace
   \bigletter T
-  \item terminate() (pycabs.Monitor method), \hyperpage{2}
-  \item trafToPdb() (pycabs.CABS method), \hyperpage{1}
+  \item Template (class in pycabs), \hyperpage{8}
+  \item terminate() (pycabs.Monitor method), \hyperpage{8}
+  \item trafToPdb() (pycabs.CABS method), \hyperpage{8}
 
 \end{theindex}

@@ -13,7 +13,7 @@
 
 
 \title{CABS Documentation}
-\date{July 06, 2012}
+\date{July 25, 2012}
 \release{2012}
 \author{Andrzej Koliński}
 \newcommand{\sphinxlogo}{}
@@ -116,10 +116,194 @@
 \tableofcontents
 \phantomsection\label{index::doc}
 
-\index{pycabs (module)}\index{CABS (class in pycabs)}
+
+Contents:
+
+
+\chapter{Tutorial}
+\label{tutorial::doc}\label{tutorial:welcome-to-cabs-s-documentation}\label{tutorial:tutorial}
+
+\section{Calculating heat capacity, $C_v$}
+\label{tutorial:calculating-heat-capacity}\begin{gather}
+\begin{split}C_v(T) = \frac{\left<E^2\right> - \left<E\right>^2}{T^2}\end{split}\notag\\\begin{split}\end{split}\notag
+\end{gather}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c}{\PYGZsh{}!/usr/bin/env python}
+\PYG{k+kn}{import} \PYG{n+nn}{multiprocessing} \PYG{k+kn}{as} \PYG{n+nn}{mp}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k+kn}{as} \PYG{n+nn}{np}
+
+\PYG{k+kn}{import} \PYG{n+nn}{pycabs}
+
+
+\PYG{k}{def} \PYG{n+nf}{runCABS}\PYG{p}{(}\PYG{n}{temperature}\PYG{p}{)}\PYG{p}{:}
+	\PYG{c}{\PYGZsh{} global for simplify arguments }
+	\PYG{k}{global} \PYG{n}{name}\PYG{p}{,} \PYG{n}{sequence}\PYG{p}{,}\PYG{n}{secstr}\PYG{p}{,}\PYG{n}{template} 
+	
+	\PYG{c}{\PYGZsh{} function for running CABS with different temperatures}
+	\PYG{c}{\PYGZsh{} it will compute in directory name+\PYGZus{}+temperature}
+	\PYG{n}{here} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{getcwd}\PYG{p}{(}\PYG{p}{)} \PYG{c}{\PYGZsh{} since pycabs changing directories...}
+	\PYG{n}{a} \PYG{o}{=} \PYG{n}{pycabs}\PYG{o}{.}\PYG{n}{CABS}\PYG{p}{(}\PYG{n}{sequence}\PYG{p}{,}\PYG{n}{secstr}\PYG{p}{,}\PYG{n}{template}\PYG{p}{,}\PYG{n}{name}\PYG{o}{+}\PYG{l+s}{"}\PYG{l+s}{\PYGZus{}}\PYG{l+s}{"}\PYG{o}{+}\PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{temperature}\PYG{p}{)}\PYG{p}{)}
+	\PYG{n}{a}\PYG{o}{.}\PYG{n}{createLatticeReplicas}\PYG{p}{(}\PYG{n}{replicas}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+	\PYG{n}{a}\PYG{o}{.}\PYG{n}{modeling}\PYG{p}{(}\PYG{n}{Ltemp}\PYG{o}{=}\PYG{n}{temperature}\PYG{p}{,}\PYG{n}{Htemp}\PYG{o}{=}\PYG{n}{temperature}\PYG{p}{,} \PYG{n}{phot}\PYG{o}{=}\PYG{l+m+mi}{85}\PYG{p}{,}\PYG{n}{cycles}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+	\PYG{c}{\PYGZsh{}remember to come back to {}`here{}` directory}
+	\PYG{n}{os}\PYG{o}{.}\PYG{n}{chdir}\PYG{p}{(}\PYG{n}{here}\PYG{p}{)}
+
+
+\PYG{c}{\PYGZsh{}init these variables \PYGZus{}before\PYGZus{} running cabs}
+\PYG{n}{name} \PYG{o}{=} \PYG{l+s}{"}\PYG{l+s}{fnord}\PYG{l+s}{"}
+\PYG{c}{\PYGZsh{} we have some template, it has to be as list}
+\PYG{n}{template}\PYG{o}{=}\PYG{p}{[}\PYG{l+s}{"}\PYG{l+s}{/home/hydek/pycabs/playground/2pcy.pdb}\PYG{l+s}{"}\PYG{p}{]} 
+\PYG{c}{\PYGZsh{} suppose we have porter prediction of sec. str.}
+\PYG{n}{sss} \PYG{o}{=}  \PYG{n}{pycabs}\PYG{o}{.}\PYG{n}{parsePorterOutput}\PYG{p}{(}\PYG{l+s}{"}\PYG{l+s}{/home/hydek/pycabs/proba/playground/porter.ss}\PYG{l+s}{"}\PYG{p}{)} 
+\PYG{n}{sequence} \PYG{o}{=} \PYG{n}{sss}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+\PYG{n}{secstr} \PYG{o}{=} \PYG{n}{sss}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}
+\PYG{c}{\PYGZsh{} now we have all data required to run CABS}
+
+\PYG{n}{temp\PYGZus{}from} \PYG{o}{=} \PYG{l+m+mf}{2.0}
+\PYG{n}{temp\PYGZus{}to}  \PYG{o}{=} \PYG{l+m+mf}{4.0}
+\PYG{n}{temp\PYGZus{}interval} \PYG{o}{=} \PYG{l+m+mf}{0.07}
+\PYG{n}{temperatures}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{arange}\PYG{p}{(}\PYG{n}{temp\PYGZus{}from}\PYG{p}{,}\PYG{n}{temp\PYGZus{}to}\PYG{p}{,}\PYG{n}{temp\PYGZus{}interval}\PYG{p}{)} \PYG{c}{\PYGZsh{} ranges of temperature}
+
+\PYG{c}{\PYGZsh{} create thread pool  with two parallel threads}
+\PYG{n}{pool} \PYG{o}{=} \PYG{n}{mp}\PYG{o}{.}\PYG{n}{Pool}\PYG{p}{(}\PYG{n}{processes}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+\PYG{n}{pool}\PYG{o}{.}\PYG{n}{map}\PYG{p}{(}\PYG{n}{runCABS}\PYG{p}{,}\PYG{n}{temperatures}\PYG{p}{)} \PYG{c}{\PYGZsh{} run cabs threads}
+
+\PYG{c}{\PYGZsh{} HERE IS THE END OF PART WHERE WE RUN CABS in parallel fashion. }
+
+\PYG{c}{\PYGZsh{} Now you can do something with output data, we'll calculate heat capacity, Cv:}
+\PYG{n}{cv} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{temperatures}\PYG{p}{)}\PYG{p}{)}
+\PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{temperatures}\PYG{p}{)}\PYG{p}{)}\PYG{p}{:}
+	\PYG{n}{t} \PYG{o}{=} \PYG{n}{temperatures}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}
+	\PYG{n}{e\PYGZus{}path} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n}{name}\PYG{o}{+}\PYG{l+s}{'}\PYG{l+s}{\PYGZus{}}\PYG{l+s}{'}\PYG{o}{+}\PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{t}\PYG{p}{)}\PYG{p}{,}\PYG{l+s}{'}\PYG{l+s}{ENERGY}\PYG{l+s}{'}\PYG{p}{)}
+	\PYG{n}{energy} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{fromfile}\PYG{p}{(}\PYG{n}{e\PYGZus{}path}\PYG{p}{,}\PYG{n}{sep}\PYG{o}{=}\PYG{l+s}{'}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s}{'}\PYG{p}{)} \PYG{c}{\PYGZsh{} read ENERGY data into array {}`energy{}`}
+	\PYG{n}{avg\PYGZus{}energy2} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{average}\PYG{p}{(}\PYG{n}{energy}\PYG{o}{*}\PYG{n}{energy}\PYG{p}{)} \PYG{c}{\PYGZsh{} \PYGZlt{}E\PYGZca{}2\PYGZgt{}}
+	\PYG{n}{avg\PYGZus{}energy} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{average}\PYG{p}{(}\PYG{n}{energy}\PYG{p}{)}		    \PYG{c}{\PYGZsh{} \PYGZlt{}E\PYGZgt{}\PYGZca{}2}
+	\PYG{n}{cv}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{n}{avg\PYGZus{}energy2} \PYG{o}{-} \PYG{n}{avg\PYGZus{}energy}\PYG{o}{*}\PYG{n}{avg\PYGZus{}energy}\PYG{p}{)}\PYG{o}{/}\PYG{p}{(}\PYG{n}{t}\PYG{o}{*}\PYG{n}{t}\PYG{p}{)} \PYG{c}{\PYGZsh{} (\PYGZlt{}E\PYGZca{}2\PYGZgt{} - \PYGZlt{}E\PYGZgt{}\PYGZca{}2) / T\PYGZca{}2}
+\PYG{c}{\PYGZsh{} now we have heat capacity in cv array	}
+
+\PYG{c}{\PYGZsh{} ... and display plot}
+\PYG{k+kn}{from} \PYG{n+nn}{pylab} \PYG{k+kn}{import} \PYG{o}{*}
+\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s}{r'}\PYG{l+s}{temperature \PYGZdl{}T\PYGZdl{}}\PYG{l+s}{'}\PYG{p}{)}
+\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s}{r'}\PYG{l+s}{heat capacity \PYGZdl{}C\PYGZus{}v = (}\PYG{l+s}{\PYGZbs{}}\PYG{l+s}{left\PYGZlt{}E\PYGZca{}2}\PYG{l+s}{\PYGZbs{}}\PYG{l+s}{right\PYGZgt{} - }\PYG{l+s}{\PYGZbs{}}\PYG{l+s}{left\PYGZlt{}E}\PYG{l+s}{\PYGZbs{}}\PYG{l+s}{right\PYGZgt{}\PYGZca{}2)/T\PYGZca{}2\PYGZdl{}}\PYG{l+s}{'} \PYG{p}{)}
+\PYG{n}{xlim}\PYG{p}{(}\PYG{n}{temp\PYGZus{}from}\PYG{p}{,}\PYG{n}{temp\PYGZus{}to}\PYG{p}{)} \PYG{c}{\PYGZsh{} xrange}
+\PYG{n}{plot}\PYG{p}{(}\PYG{n}{temperatures}\PYG{p}{,}\PYG{n}{cv}\PYG{p}{)}
+\PYG{n}{show}\PYG{p}{(}\PYG{p}{)}
+
+\PYG{c}{\PYGZsh{}remember that you have name+\PYGZus{}+temperature directories, delete it or sth}
+\end{Verbatim}
+
+
+\section{Monitoring of CABS energy during simulation}
+\label{tutorial:monitoring-of-cabs-energy-during-simulation}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c}{\PYGZsh{}!/usr/bin/env python}
+\PYG{k+kn}{from} \PYG{n+nn}{pylab} \PYG{k+kn}{import} \PYG{o}{*}
+\PYG{k+kn}{from} \PYG{n+nn}{sys} \PYG{k+kn}{import} \PYG{n}{argv}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{time}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k+kn}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{import} \PYG{n+nn}{pycabs}
+
+\PYG{k}{class} \PYG{n+nc}{Energy}\PYG{p}{(}\PYG{n}{pycabs}\PYG{o}{.}\PYG{n}{Calculate}\PYG{p}{)}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf}{calculate}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,}\PYG{n}{data}\PYG{p}{)}\PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n}{data}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{out}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{i}\PYG{p}{)}\PYG{p}{)} \PYG{c}{\PYGZsh{} ENERGY file contains one value in a row}
+            
+\PYG{n}{out} \PYG{o}{=} \PYG{p}{[}\PYG{p}{]}						
+\PYG{n}{calc} \PYG{o}{=} \PYG{n}{Energy}\PYG{p}{(}\PYG{n}{out}\PYG{p}{)} \PYG{c}{\PYGZsh{} out is dynamically updated }
+\PYG{n}{m}\PYG{o}{=}\PYG{n}{pycabs}\PYG{o}{.}\PYG{n}{Monitor}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{,}\PYG{l+s}{"}\PYG{l+s}{ENERGY}\PYG{l+s}{"}\PYG{p}{)}\PYG{p}{,}\PYG{n}{calc}\PYG{p}{)}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{daemon} \PYG{o}{=} \PYG{n+nb+bp}{True}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{start}\PYG{p}{(}\PYG{p}{)}
+
+
+
+\PYG{n}{ion}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{y} \PYG{o}{=} \PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{x} \PYG{o}{=} \PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{line}\PYG{p}{,} \PYG{o}{=} \PYG{n}{plot}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,}\PYG{n}{y}\PYG{p}{)}
+\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s}{'}\PYG{l+s}{CABS time step}\PYG{l+s}{'}\PYG{p}{)}
+\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s}{'}\PYG{l+s}{CABS energy}\PYG{l+s}{'}\PYG{p}{)}
+
+\PYG{k}{while} \PYG{l+m+mi}{1}\PYG{p}{:}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+    \PYG{n}{y} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{asarray}\PYG{p}{(}\PYG{n}{out}\PYG{p}{)}
+    \PYG{n}{x} \PYG{o}{=} \PYG{n+nb}{xrange}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{out}\PYG{p}{)}\PYG{p}{)}
+    \PYG{n}{axis}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{amax}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{amin}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{o}{-}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{n}{amax}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{o}{+}\PYG{l+m+mi}{5} \PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{line}\PYG{o}{.}\PYG{n}{set\PYGZus{}ydata}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}  \PYG{c}{\PYGZsh{} update the data}
+    \PYG{n}{line}\PYG{o}{.}\PYG{n}{set\PYGZus{}xdata}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}
+    \PYG{n}{draw}\PYG{p}{(}\PYG{p}{)}
+\end{Verbatim}
+
+
+\section{Monitoring of end-to-end distance of chain during simulation}
+\label{tutorial:monitoring-of-end-to-end-distance-of-chain-during-simulation}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c}{\PYGZsh{}!/usr/bin/env python}
+\PYG{k+kn}{from} \PYG{n+nn}{pylab} \PYG{k+kn}{import} \PYG{o}{*}
+\PYG{k+kn}{from} \PYG{n+nn}{sys} \PYG{k+kn}{import} \PYG{n}{argv}
+\PYG{k+kn}{import} \PYG{n+nn}{time}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k+kn}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{import} \PYG{n+nn}{pycabs}
+
+\PYG{k}{class} \PYG{n+nc}{E2E}\PYG{p}{(}\PYG{n}{pycabs}\PYG{o}{.}\PYG{n}{Calculate}\PYG{p}{)}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf}{calculate}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,}\PYG{n}{data}\PYG{p}{)}\PYG{p}{:}
+        \PYG{n}{models} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{processTrajectory}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{m} \PYG{o+ow}{in} \PYG{n}{models}\PYG{p}{:}
+            \PYG{n}{first} \PYG{o}{=} \PYG{n}{m}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{:}\PYG{l+m+mi}{3}\PYG{p}{]}
+            \PYG{n}{last} \PYG{o}{=} \PYG{n}{m}\PYG{p}{[}\PYG{o}{-}\PYG{l+m+mi}{3}\PYG{p}{:}\PYG{p}{]}
+
+            \PYG{n}{x} \PYG{o}{=} \PYG{n}{first}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{-}\PYG{n}{last}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+            \PYG{n}{y} \PYG{o}{=} \PYG{n}{first}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{-}\PYG{n}{last}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}
+            \PYG{n}{z} \PYG{o}{=} \PYG{n}{first}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{-}\PYG{n}{last}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{out}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{x}\PYG{o}{*}\PYG{n}{x}\PYG{o}{+}\PYG{n}{y}\PYG{o}{*}\PYG{n}{y}\PYG{o}{+}\PYG{n}{z}\PYG{o}{*}\PYG{n}{z}\PYG{p}{)}            
+            
+\PYG{n}{out} \PYG{o}{=} \PYG{p}{[}\PYG{p}{]}						
+\PYG{n}{calc} \PYG{o}{=} \PYG{n}{E2E}\PYG{p}{(}\PYG{n}{out}\PYG{p}{)} \PYG{c}{\PYGZsh{} out is dynamically updated }
+\PYG{n}{m}\PYG{o}{=}\PYG{n}{pycabs}\PYG{o}{.}\PYG{n}{Monitor}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{,}\PYG{l+s}{"}\PYG{l+s}{TRAF}\PYG{l+s}{"}\PYG{p}{)}\PYG{p}{,}\PYG{n}{calc}\PYG{p}{)}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{daemon} \PYG{o}{=} \PYG{n+nb+bp}{True}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{start}\PYG{p}{(}\PYG{p}{)}
+
+
+\PYG{n}{ion}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{y} \PYG{o}{=} \PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{x} \PYG{o}{=} \PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{line}\PYG{p}{,} \PYG{o}{=} \PYG{n}{plot}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,}\PYG{n}{y}\PYG{p}{)}
+\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s}{'}\PYG{l+s}{CABS time step}\PYG{l+s}{'}\PYG{p}{)}
+\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s}{'}\PYG{l+s}{square of end to end distance}\PYG{l+s}{'}\PYG{p}{)}
+
+\PYG{k}{while} \PYG{l+m+mi}{1}\PYG{p}{:}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+    \PYG{n}{y} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{asarray}\PYG{p}{(}\PYG{n}{out}\PYG{p}{)}
+    \PYG{n}{x} \PYG{o}{=} \PYG{n+nb}{xrange}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{out}\PYG{p}{)}\PYG{p}{)}
+    \PYG{n}{axis}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{amax}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{amin}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{o}{-}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{n}{amax}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{o}{+}\PYG{l+m+mi}{5} \PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{line}\PYG{o}{.}\PYG{n}{set\PYGZus{}ydata}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}  \PYG{c}{\PYGZsh{} update the data}
+    \PYG{n}{line}\PYG{o}{.}\PYG{n}{set\PYGZus{}xdata}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}
+    \PYG{n}{draw}\PYG{p}{(}\PYG{p}{)}
+\end{Verbatim}
+
+
+\chapter{pyCABS API}
+\label{api:module-pycabs}\label{api::doc}\label{api:pycabs-api}\index{pycabs (module)}
+pyCABS Copyright (C) 2012 Michal Jamroz \textless{}\href{mailto:jamroz@chem.uw.edu.pl}{jamroz@chem.uw.edu.pl}\textgreater{}
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see \textless{}\href{http://www.gnu.org/licenses/}{http://www.gnu.org/licenses/}\textgreater{}.
+\index{CABS (class in pycabs)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.CABS}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{CABS}}{\emph{sequence}, \emph{secondary\_structure}, \emph{templates\_filenames}, \emph{project\_name}}{}
+\phantomsection\label{api:pycabs.CABS}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{CABS}}{\emph{sequence}, \emph{secondary\_structure}, \emph{templates\_filenames}, \emph{project\_name}}{}
 CABS main class.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
@@ -141,7 +325,7 @@ CABS main class.
 \index{calcConstraints() (pycabs.CABS method)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.CABS.calcConstraints}\pysiglinewithargsret{\bfcode{calcConstraints}}{\emph{exclude\_residues=}\optional{}, \emph{other\_constraints=}\optional{}}{}
+\phantomsection\label{api:pycabs.CABS.calcConstraints}\pysiglinewithargsret{\bfcode{calcConstraints}}{\emph{exclude\_residues=}\optional{}, \emph{other\_constraints=}\optional{}}{}
 Calculate distance constraints using templates 3D models.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
@@ -160,7 +344,7 @@ Calculate distance constraints using templates 3D models.
 \index{convertPdbToDcd() (pycabs.CABS method)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.CABS.convertPdbToDcd}\pysiglinewithargsret{\bfcode{convertPdbToDcd}}{\emph{catdcd\_path='/home/hydek/pycabs/FF/catdcd'}}{}
+\phantomsection\label{api:pycabs.CABS.convertPdbToDcd}\pysiglinewithargsret{\bfcode{convertPdbToDcd}}{\emph{catdcd\_path='/home/hydek/pycabs/FF/catdcd'}}{}
 This is only simple wrapper to CatDCD software (\href{http://www.ks.uiuc.edu/Development/MDTools/catdcd/}{http://www.ks.uiuc.edu/Development/MDTools/catdcd/}), 
 could be usable since *.dcd binary format is few times lighter than pdb, and many python libraries 
 (ProDy, MDAnalysis) use *.dcd as trajectory input format.
@@ -171,7 +355,7 @@ Before use, download CatDCD from \href{http://www.ks.uiuc.edu/Development/MDTool
 \index{createLatticeReplicas() (pycabs.CABS method)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.CABS.createLatticeReplicas}\pysiglinewithargsret{\bfcode{createLatticeReplicas}}{\emph{start\_structures\_fn=}\optional{}, \emph{replicas=20}}{}
+\phantomsection\label{api:pycabs.CABS.createLatticeReplicas}\pysiglinewithargsret{\bfcode{createLatticeReplicas}}{\emph{start\_structures\_fn=}\optional{}, \emph{replicas=20}}{}
 Create protein models projected onto CABS lattice, which will be used as replicas.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
@@ -191,10 +375,36 @@ If number of replicas is smaller than number of templates - program will create 
 
 \end{fulllineitems}
 
+\index{getEnergy() (pycabs.CABS method)}
+
+\begin{fulllineitems}
+\phantomsection\label{api:pycabs.CABS.getEnergy}\pysiglinewithargsret{\bfcode{getEnergy}}{}{}
+Read CABS energy values into list
+\begin{quote}\begin{description}
+\item[{Returns}] \leavevmode
+list of models energy
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{getTraCoordinates() (pycabs.CABS method)}
+
+\begin{fulllineitems}
+\phantomsection\label{api:pycabs.CABS.getTraCoordinates}\pysiglinewithargsret{\bfcode{getTraCoordinates}}{}{}
+Read trajectory file into 2D list of coordinates
+\begin{quote}\begin{description}
+\item[{Returns}] \leavevmode
+2D list of trajectory coordinates
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
 \index{rng\_seed (pycabs.CABS attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.CABS.rng_seed}\pysigline{\bfcode{rng\_seed}\strong{ = None}}
+\phantomsection\label{api:pycabs.CABS.rng_seed}\pysigline{\bfcode{rng\_seed}\strong{ = None}}
 seed for random generator
 
 \end{fulllineitems}
@@ -202,7 +412,7 @@ seed for random generator
 \index{trafToPdb() (pycabs.CABS method)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.CABS.trafToPdb}\pysiglinewithargsret{\bfcode{trafToPdb}}{\emph{output\_filename='TRAF.pdb'}}{}
+\phantomsection\label{api:pycabs.CABS.trafToPdb}\pysiglinewithargsret{\bfcode{trafToPdb}}{\emph{output\_filename='TRAF.pdb'}}{}
 Convert TRAF CABS pseudotrajectory file format into multimodel pdb
 
 \end{fulllineitems}
@@ -213,8 +423,8 @@ Convert TRAF CABS pseudotrajectory file format into multimodel pdb
 \index{Calculate (class in pycabs)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.Calculate}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{Calculate}}{\emph{output}}{}
-Inherit if you want to process data used with {\hyperref[index:pycabs.Monitor]{\code{Monitor}}} class.
+\phantomsection\label{api:pycabs.Calculate}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{Calculate}}{\emph{output}}{}
+Inherit if you want to process data used with {\hyperref[api:pycabs.Monitor]{\code{Monitor}}} class.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
 \textbf{output} (\emph{array/list}) -- output array with calculated results
@@ -223,11 +433,11 @@ Inherit if you want to process data used with {\hyperref[index:pycabs.Monitor]{\
 \index{processTrajectory() (pycabs.Calculate method)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.Calculate.processTrajectory}\pysiglinewithargsret{\bfcode{processTrajectory}}{\emph{data}}{}
+\phantomsection\label{api:pycabs.Calculate.processTrajectory}\pysiglinewithargsret{\bfcode{processTrajectory}}{\emph{data}}{}
 Use it in \emph{calculate} method if you parsing TRAF file, and want to calculate something on structure
 \begin{quote}\begin{description}
-\item[{Result }] \leavevmode
-Array of 1D model coordinates
+\item[{Returns}] \leavevmode
+array of model coordinates
 
 \end{description}\end{quote}
 
@@ -239,7 +449,7 @@ Array of 1D model coordinates
 \index{Errors}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.Errors}\pysiglinewithargsret{\strong{exception }\code{pycabs.}\bfcode{Errors}}{\emph{value}}{}
+\phantomsection\label{api:pycabs.Errors}\pysiglinewithargsret{\strong{exception }\code{pycabs.}\bfcode{Errors}}{\emph{value}}{}
 Simple error messages
 
 \end{fulllineitems}
@@ -247,7 +457,7 @@ Simple error messages
 \index{Info (class in pycabs)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.Info}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{Info}}{\emph{text}}{}
+\phantomsection\label{api:pycabs.Info}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{Info}}{\emph{text}}{}
 Simple message system
 
 \end{fulllineitems}
@@ -255,17 +465,17 @@ Simple message system
 \index{Monitor (class in pycabs)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.Monitor}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{Monitor}}{\emph{filename}, \emph{calculate}}{}
+\phantomsection\label{api:pycabs.Monitor}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{Monitor}}{\emph{filename}, \emph{calculate}}{}
 Class for monitoring of CABS output data. You can run it and dynamically update output arrays with calculated results.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\textbf{calculate} ({\hyperref[index:pycabs.Calculate]{\code{Calculate}}}) -- what to do with gathered data ?
+\textbf{calculate} ({\hyperref[api:pycabs.Calculate]{\code{Calculate}}}) -- what to do with gathered data ?
 
 \end{description}\end{quote}
 \index{daemon (pycabs.Monitor attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.Monitor.daemon}\pysigline{\bfcode{daemon}\strong{ = None}}
+\phantomsection\label{api:pycabs.Monitor.daemon}\pysigline{\bfcode{daemon}\strong{ = None}}
 if True, it will terminate when script terminates
 
 \end{fulllineitems}
@@ -273,7 +483,7 @@ if True, it will terminate when script terminates
 \index{run() (pycabs.Monitor method)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.Monitor.run}\pysiglinewithargsret{\bfcode{run}}{}{}
+\phantomsection\label{api:pycabs.Monitor.run}\pysiglinewithargsret{\bfcode{run}}{}{}
 Run monitor in background
 
 \end{fulllineitems}
@@ -281,8 +491,41 @@ Run monitor in background
 \index{terminate() (pycabs.Monitor method)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.Monitor.terminate}\pysiglinewithargsret{\bfcode{terminate}}{}{}
+\phantomsection\label{api:pycabs.Monitor.terminate}\pysiglinewithargsret{\bfcode{terminate}}{}{}
 Terminate monitor
+
+\end{fulllineitems}
+
+
+\end{fulllineitems}
+
+\index{Template (class in pycabs)}
+
+\begin{fulllineitems}
+\phantomsection\label{api:pycabs.Template}\pysiglinewithargsret{\strong{class }\code{pycabs.}\bfcode{Template}}{\emph{filename}}{}
+Class used for template storage of atom positions and distance calculation
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\textbf{filename} -- path to file with template (in PDB format)
+
+\end{description}\end{quote}
+\index{distance() (pycabs.Template method)}
+
+\begin{fulllineitems}
+\phantomsection\label{api:pycabs.Template.distance}\pysiglinewithargsret{\bfcode{distance}}{\emph{idx\_i}, \emph{idx\_j}}{}~\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{idx\_i} (\emph{integer}) -- residue index (as in target sequence numbering)
+
+\item {} 
+\textbf{idx\_j} (\emph{integer}) -- residue index (as in target sequence numbering)
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+euclidean distance between C\(\alpha\)(i) and C\(\alpha\)(j)
+
+\end{description}\end{quote}
 
 \end{fulllineitems}
 
@@ -292,7 +535,7 @@ Terminate monitor
 \index{parsePorterOutput() (in module pycabs)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.parsePorterOutput}\pysiglinewithargsret{\code{pycabs.}\bfcode{parsePorterOutput}}{\emph{porter\_output\_fn}}{}
+\phantomsection\label{api:pycabs.parsePorterOutput}\pysiglinewithargsret{\code{pycabs.}\bfcode{parsePorterOutput}}{\emph{porter\_output\_fn}}{}
 Porter (protein secondary stucture prediction, \href{http://distill.ucd.ie/porter/}{http://distill.ucd.ie/porter/}) output parser. 
 Porter emailed output looks like:
 
@@ -319,7 +562,7 @@ tuple (sequence, secondary\_structure)
 \index{parsePsipredOutput() (in module pycabs)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:pycabs.parsePsipredOutput}\pysiglinewithargsret{\code{pycabs.}\bfcode{parsePsipredOutput}}{\emph{psipred\_output\_fn}}{}
+\phantomsection\label{api:pycabs.parsePsipredOutput}\pysiglinewithargsret{\code{pycabs.}\bfcode{parsePsipredOutput}}{\emph{psipred\_output\_fn}}{}
 Psipred (protein secondary structure prediction, \href{http://bioinf.cs.ucl.ac.uk/psipred/}{http://bioinf.cs.ucl.ac.uk/psipred/}) output parser. 
 Psipred output looks like:
 
@@ -344,39 +587,34 @@ tuple (sequence, secondary\_structure)
 
 \end{fulllineitems}
 
+\index{rmsd() (in module pycabs)}
 
-Contents:
+\begin{fulllineitems}
+\phantomsection\label{api:pycabs.rmsd}\pysiglinewithargsret{\code{pycabs.}\bfcode{rmsd}}{\emph{reference}, \emph{arr}}{}
+Calculate coordinate Root Mean Square Deviation between two sets of coordinates.
+\begin{gather}
+\begin{split}cRMSD = \sqrt{ \sum_{i=1}^N \|x_{i} - y_{i}\|^2 \over N}\end{split}\notag
+\end{gather}\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{reference} (\emph{list}) -- 1D list of coordinates (length of 3N)
 
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kn}{from} \PYG{n+nn}{pylab} \PYG{k+kn}{import} \PYG{o}{*}
-\PYG{k+kn}{from} \PYG{n+nn}{matplotlib.patches} \PYG{k+kn}{import} \PYG{n}{Ellipse}
+\item {} 
+\textbf{arr} (\emph{list}) -- 1D list of coordinates (length of 3N)
 
-\PYG{n}{delta} \PYG{o}{=} \PYG{l+m+mf}{45.0} \PYG{c}{\PYGZsh{} degrees}
+\end{itemize}
 
-\PYG{n}{angles} \PYG{o}{=} \PYG{n}{arange}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{360}\PYG{o}{+}\PYG{n}{delta}\PYG{p}{,} \PYG{n}{delta}\PYG{p}{)}
-\PYG{n}{ells} \PYG{o}{=} \PYG{p}{[}\PYG{n}{Ellipse}\PYG{p}{(}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{a}\PYG{p}{)} \PYG{k}{for} \PYG{n}{a} \PYG{o+ow}{in} \PYG{n}{angles}\PYG{p}{]}
+\item[{Returns}] \leavevmode
+RMSD value after optimal superimposition of two structures
 
-\PYG{n}{a} \PYG{o}{=} \PYG{n}{subplot}\PYG{p}{(}\PYG{l+m+mi}{111}\PYG{p}{,} \PYG{n}{aspect}\PYG{o}{=}\PYG{l+s}{'}\PYG{l+s}{equal}\PYG{l+s}{'}\PYG{p}{)}
+\end{description}\end{quote}
 
-\PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{ells}\PYG{p}{:}
-    \PYG{n}{e}\PYG{o}{.}\PYG{n}{set\PYGZus{}clip\PYGZus{}box}\PYG{p}{(}\PYG{n}{a}\PYG{o}{.}\PYG{n}{bbox}\PYG{p}{)}
-    \PYG{n}{e}\PYG{o}{.}\PYG{n}{set\PYGZus{}alpha}\PYG{p}{(}\PYG{l+m+mf}{0.1}\PYG{p}{)}
-    \PYG{n}{a}\PYG{o}{.}\PYG{n}{add\PYGZus{}artist}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+\end{fulllineitems}
 
-\PYG{n}{xlim}\PYG{p}{(}\PYG{o}{-}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{l+m+mi}{4}\PYG{p}{)}
-\PYG{n}{ylim}\PYG{p}{(}\PYG{o}{-}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)}
-
-\PYG{n}{show}\PYG{p}{(}\PYG{p}{)}
-\end{Verbatim}
-\begin{figure}[htbp]
-\centering
-
-\includegraphics{ellipses.pdf}
-\end{figure}
 
 
 \chapter{Indices and tables}
-\label{index:welcome-to-cabs-s-documentation}\label{index::doc}\label{index:module-pycabs}\label{index:indices-and-tables}\begin{itemize}
+\label{index:indices-and-tables}\begin{itemize}
 \item {} 
 \emph{genindex}
 
@@ -393,7 +631,7 @@ Contents:
 \begin{theindex}
 \def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 \bigletter{p}
-\item {\texttt{pycabs}}, \pageref{index:module-pycabs}
+\item {\texttt{pycabs}}, \pageref{api:module-pycabs}
 \end{theindex}
 
 \renewcommand{\indexname}{Index}

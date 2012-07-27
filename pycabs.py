@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from tempfile import mkdtemp
 from re import search,sub,compile,match
 from os import getcwd,chdir,path,mkdir,stat,remove,rename
-from numpy import fromfile,reshape,linalg
+from numpy import fromfile,reshape,linalg,mean,std
 from subprocess import Popen,PIPE
 from shutil import copyfile
 from math import sqrt,cos,sin,atan2
@@ -63,6 +63,7 @@ class CABS(threading.Thread):
 		self.seqlen = len(sequence)
 		self.rng_seed = 1799	#: seed for random generator
 		self.constraints = 0
+		
 		# self.replicas - defined in lattice model creation method
 		
 		
@@ -73,18 +74,137 @@ class CABS(threading.Thread):
 		
 		self._createSEQ() # we always need SEQ file so I put it here
 
-	def calcConstraints(self,exclude_residues=[],other_constraints=[]): # TODO - update self.constraints
+	def createLatticeReplicas(self,start_structures_fn=[],replicas=20):
 		"""
-			Calculate distance constraints using templates 3D models. 
+			Create protein models projected onto CABS lattice, which will be used as replicas.
+			
+			:param start_structures_fn: list of paths to pdb files which should be used instead of templates models.  This parameter is optional, and probably not often used. Without it script creates replicas from templates files.
+			:type start_structures_fn: list
+			:param replicas: define number of replicas in CABS simulation. However 20 is optimal for most cases, and you don't need to change it in protein modeling case. 
+			:type replicas: integer
+			
+			.. note:: If number of replicas is smaller than number of templates - program will create replicas using first *replicas* templates. If there is less templates than replicas, they are creating sequentially using template models.
+			
+		"""
+		
+		if len(start_structures_fn)==0 and len(self.templates_fn)==0:
+			raise Errors("lists start_structures_fn OR templates_filenames cannot be empty !")
+		
+		tempdir = mkdtemp('','tmp','')
+		self.tempdir = tempdir
+		
+		temp_filenames = self.templates_fn
+		if len(start_structures_fn)>0:	# for user selected start models
+			temp_filenames = start_structures_fn
+			
+		# create lattice model of each pdb
+	
+		i = 0
+		for tfn in temp_filenames:
+			l = 0
+			try:
+				print Info("creating lattice model for "+tfn)
+				f = open(tfn,"r")
+				fw = open(path.join(self.cwd,self.pname,tempdir,"ALIGN%d" % (i)),"w")
+				for line in f.readlines():
+					if search("^ATOM.........CA", line): # get only Calpha atoms
+						fw.write(line)
+						l +=1
+				fw.close()		
+				f.close()
+				chdir(path.join(self.cwd,self.pname,tempdir))
+				arg = path.join(self.FF,"a.out")+ " %d %d %d" % (self.seqlen,l,i)
+				chainstart = Popen([arg], shell=True, stdout=PIPE)
+				chainstart.communicate()
+				
+				chdir(path.join(self.cwd,self.pname))
+				i += 1
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				
+		# create FCHAINS file which contains replicas coordinates
+		
+		m = len(temp_filenames) # number of templates
+		chains_data = []
+		for i in range(m): # load all chain files into memory
+			chain = open(path.join(self.cwd,self.pname,tempdir,"CHAIN"+str(i)),"r")
+			chains_data.append(chain.readlines())
+			chain.close()
+			
+		counter = 0
+		k = 0 					# index of template
+		fchains = open("FCHAINS","w")				
+		while counter<replicas: 
+			for line in chains_data[k]:
+				fchains.write(line)
+			k += 1
+			if k==m: k=0
+			counter +=1
+		fchains.close()	
+		self.replicas = replicas
+		print Info("FCHAINS file created")
+
+	def generateConstraints(self,exclude_residues=[],other_constraints=[]): # TODO - update self.constraints
+		"""
+			Calculate distance constraints using templates 3D models. Constraint will be a square well of size d-std_dev-1.0,d+std_dev+1.0, where d is mean distance among templates between Cα atoms (if constraint will be exceeded, there is penalty, scaled by weight.
+			
+			Weight is defined as a fraction of particular average distance among templates i.e. if pair of residues exist in 2 of 3 templates, weight will be 0.66. Using multiple sequence alignments it should provide stronger constraints on consistently aligned parts. 
 			
 			:param exclude_residues: indexes of residues without constrains
 			:type exclude_residues: list
-			:param other constrains: user-defined constrains as list of tuples: (residue_i_index,residue_j_index,constraint_strength)
+			:param other constrains: user-defined constrains as list of tuples: (residue_i_index,residue_j_index,distance, constraint_strength)
 			:type other_constraints: list
 			
 		"""
-		# d=(int)1.7d
-		pass
+		t = [] # here is list with templates structures
+		for template_path in self.templates_fn:
+			model = Template(template_path)
+			t.append(model)
+		max_resid = -1
+		for temp in t:
+			if temp.getLastResidueIndex()>max_resid:
+				max_resid = temp.getLastResidueIndex()
+		
+		constraints = []
+		for i in range(1,max_resid):
+			later_j = []
+			jtmp  = 14
+			for l in range(14):
+				jtmp = int(jtmp*1.4)
+				if jtmp+i<max_resid:
+					later_j.append(jtmp)
+				else:
+					break
+			for j in [5,14]+later_j:
+				ji = j+i
+				if ji>max_resid or i in other_constraints or ji in other_constraints or i in exclude_residues or ji in exclude_residues:
+					continue
+					
+				distances = []
+				for temp in t:
+					d = temp.distance(i,ji)
+					if d:
+						distances.append(d)
+				if(len(distances)>0):
+					d_mean = mean(distances)
+					d_stddev = std(distances)
+					d_weight = 1.0*len(distances)/len(t)
+					
+					d_min = d_mean-d_stddev-1.0
+					if d_min<3.8: d_min = 3.8
+					d_max = d_mean+d_stddev+1.0
+					constraint = (i,ji,d_min,d_max,d_weight)
+					constraints.append(constraint)
+		self.constraints = len(constraints+other_constraints)
+		f = open("constraints.dat","w")
+		iter = 1
+		for c in constraints+other_constraints:
+			f.write( "%4d %5d %5d %6.2f %6.2f %5.2f\n"%(c[0],c[1],iter,round(c[2],2),round(c[3],2),round(c[4],2)))
+			iter += 1
+		f.close()
+						
+				
+			
 	def getEnergy(self):
 		"""
 			Read CABS energy values into list
@@ -226,11 +346,17 @@ class CABS(threading.Thread):
 		#TODO
 		inp = "%5d %5d %5d %5d\n%5.2f %5.2f %5.2f %5.3f %5.3f\n%5.2f %5.2f"\
 		 "%5.2f %5.2f %5.3f\n0. 0 0 0 0\n0.0 0.0 0.0 0.0\n0 0.0\n%5d"\
-		 "%5.2f" %(self.rng_seed,cycles,phot,self.replicas,Htemp,Ltemp,4.0,\
+		 "%5.2f\n" %(self.rng_seed,cycles,phot,self.replicas,Htemp,Ltemp,4.0,\
 		 0.125,0.250,1.0,2.0,0.25,-2.00,0.375,self.constraints,constraints_force)
 		try:
 			f = open("INP","w")
 			f.write(inp)
+			if(self.constraints>0):
+				fc = open("constraints.dat")
+				for line in fc.readlines():
+					f.write(line)
+				fc.close()
+			
 			f.close()
 		except IOError as e:
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
@@ -284,76 +410,6 @@ class CABS(threading.Thread):
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
 			
 			
-
- 	def createLatticeReplicas(self,start_structures_fn=[],replicas=20):
-		"""
-			Create protein models projected onto CABS lattice, which will be used as replicas.
-			
-			:param start_structures_fn: list of paths to pdb files which should be used instead of templates models.  This parameter is optional, and probably not often used. Without it script creates replicas from templates files.
-			:type start_structures_fn: list
-			:param replicas: define number of replicas in CABS simulation. However 20 is optimal for most cases, and you don't need to change it in protein modeling case. 
-			:type replicas: integer
-			
-			.. note:: If number of replicas is smaller than number of templates - program will create replicas using first *replicas* templates. If there is less templates than replicas, they are creating sequentially using template models.
-			
-		"""
-		
-		if len(start_structures_fn)==0 and len(self.templates_fn)==0:
-			raise Errors("lists start_structures_fn OR templates_filenames cannot be empty !")
-		
-		tempdir = mkdtemp('','tmp','')
-		self.tempdir = tempdir
-		
-		temp_filenames = self.templates_fn
-		if len(start_structures_fn)>0:	# for user selected start models
-			temp_filenames = start_structures_fn
-			
-		# create lattice model of each pdb
-	
-		i = 0
-		for tfn in temp_filenames:
-			l = 0
-			try:
-				print Info("creating lattice model for "+tfn)
-				f = open(tfn,"r")
-				fw = open(path.join(self.cwd,self.pname,tempdir,"ALIGN%d" % (i)),"w")
-				for line in f.readlines():
-					if search("^ATOM.........CA", line): # get only Calpha atoms
-						fw.write(line)
-						l +=1
-				fw.close()		
-				f.close()
-				chdir(path.join(self.cwd,self.pname,tempdir))
-				arg = path.join(self.FF,"a.out")+ " %d %d %d" % (self.seqlen,l,i)
-				chainstart = Popen([arg], shell=True, stdout=PIPE)
-				chainstart.communicate()
-				
-				chdir(path.join(self.cwd,self.pname))
-				i += 1
-			except IOError as e:
-				print "I/O error({0}): {1}".format(e.errno, e.strerror)
-				
-		# create FCHAINS file which contains replicas coordinates
-		
-		m = len(temp_filenames) # number of templates
-		chains_data = []
-		for i in range(m): # load all chain files into memory
-			chain = open(path.join(self.cwd,self.pname,tempdir,"CHAIN"+str(i)),"r")
-			chains_data.append(chain.readlines())
-			chain.close()
-			
-		counter = 0
-		k = 0 					# index of template
-		fchains = open("FCHAINS","w")				
-		while counter<replicas: 
-			for line in chains_data[k]:
-				fchains.write(line)
-			k += 1
-			if k==m: k=0
-			counter +=1
-		fchains.close()	
-		self.replicas = replicas
-		print Info("FCHAINS file created")
 			
 
 
@@ -672,7 +728,7 @@ class Errors(Exception):
 class Template:
 	
 	"""
-		Class used for template storage of atom positions and distance calculation
+		Class used for storage of templates atom positions and distance calculation
 		
 		:param filename: path to file with template (in PDB format)
 		
@@ -702,6 +758,8 @@ class Template:
 		idx = int(residue_index)
 		if idx in self.residues:
 			return self.coordinates[idx]
+	def getLastResidueIndex(self):
+		return self.residues[-1]
 	def distance(self,idx_i,idx_j):
 		"""
 			:param idx_i: residue index (as in target sequence numbering)
@@ -713,9 +771,11 @@ class Template:
 		i = int(idx_i)
 		j = int(idx_j)
 		if i in self.residues and j in self.residues:
-			vi = self.coordinates[i]
-			vj = self.coordinates[j]
+			vi = self.coordinates[self.hashmap[i]]
+			vj = self.coordinates[self.hashmap[j]]
 			return linalg.norm(vi-vj)
+		else:
+			return None
 
 		
 #################################################################
@@ -725,18 +785,17 @@ class Template:
 
 # tests
 if __name__ == "__main__":
-	data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss")
-
-	working_dir = "modelowanie2pcy"
-	templates = ["/home/hydek/pycabs/playground/2pcy_CA.pdb"]
-	a = CABS(data[0],data[1],templates,working_dir)
-	#a.createLatticeReplicas()
-	#a.modeling()
-	#tr = a.getTraCoordinates()
-	#for i in range(len(tr)):
-	#	for j in range(len(tr)):
-	#		print i,j,rmsd(tr[i],tr[j])
+	data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
+	working_dir = "modelowanie2pcy" # name of project 
+	templates = ["/home/hydek/pycabs/playground/2pcy_CA.pdb","/home/hydek/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
+	a = CABS(data[0],data[1],templates,working_dir) # initialize CABS, create required files
+	a.generateConstraints() 
+	a.createLatticeReplicas() # create start models from templates
+	a.modeling() # start modeling with default INP values and create TRAF.pdb when done
+	tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
+	for i in range(len(tr)):
+		for j in range(len(tr)):
+			print i,j,rmsd(tr[i],tr[j])
 
 	#a.convertPdbToDcd()
     
-#	print parsePsipredOutput("playground/psipred.ss")
