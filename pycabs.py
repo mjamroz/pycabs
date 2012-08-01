@@ -220,6 +220,41 @@ class CABS(threading.Thread):
 				raise Errors("Maybe there is no ENERGY file in current directory, did you run CABS.modeling method before?")
 			return energy
 			
+	def savePdbModel(self, model_idx):
+		"""
+			Save trajectory model into pdb file (model_`model_idx`.pdb).
+			
+			:param model_idx: index of model in CABS trajectory
+		"""
+		if path.isfile("TRAF"):
+			try:
+				traf = open("TRAF")
+				t = traf.readlines()
+				traf.close()
+				model = []
+				index = -1
+				for l in t:
+					if "." in l:
+						index +=1
+					if index==model_idx:
+						for coord in l.split(): model.append(int(coord)*0.61)
+					
+				model = model[3:-3]
+				pdb_format = "ATOM   %4d  CA  %3s A%4d    %8.3f%8.3f%8.3f  1.00  0.00           C\n"
+				model_format = "MODEL%9d\n"
+				pdb_data = model_format %(model_idx)
+				for ai in range(self.seqlen):
+					pdb_data += pdb_format %(ai+1,seq[ai],ai+1,model[3*ai],model[3*ai+1],model[3*ai+2])
+				pdb_data += "ENDMDL\n"		
+				out = "model_%04d.pdb" % (model_idx)
+				fw = open(out,"w")
+				fw.write(pdb_data)
+				fw.close()
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")				
+			
+			
 	def getTraCoordinates(self):
 		"""
 			Read trajectory file into 2D list of coordinates
