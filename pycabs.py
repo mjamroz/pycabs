@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from tempfile import mkdtemp
 from re import search,sub,compile,match
 from os import getcwd,chdir,path,mkdir,stat,remove,rename
-from numpy import fromfile,reshape,linalg,mean,std
+from numpy import fromfile,reshape,linalg,mean,std,zeros,unique
 from subprocess import Popen,PIPE
 from shutil import copyfile
 from math import sqrt,cos,sin,atan2
@@ -227,6 +227,9 @@ class CABS(threading.Thread):
 			:param model_idx: index of model in CABS trajectory
 		"""
 		if path.isfile("TRAF"):
+			seq = []
+			for s1 in self.sequence: seq.append(self.seq_trans[s1])
+				
 			try:
 				traf = open("TRAF")
 				t = traf.readlines()
@@ -525,7 +528,50 @@ def parsePorterOutput(porter_output_fn):
 	except IOError as e:
 		print "I/O error({0}): {1}".format(e.errno, e.strerror)
 	return (seq,ss)
-
+	
+def saveMedoids(clusters,cabs):
+	
+	seq = []
+	for s1 in cabs.sequence: seq.append(cabs.seq_trans[s1])
+	pdb_format = "ATOM   %4d  CA  %3s A%4d    %8.3f%8.3f%8.3f  1.00  0.00           C\n"
+	trajectory = cabs.getTraCoordinates()
+	
+	medoids_idx = []
+	for c in unique(clusters):
+		centroid = zeros((len(trajectory[0])))
+		this_cluster_idx = []
+		cluster_size = 0
+		for i in range(len(clusters)):
+			if clusters[i]==c:
+				cluster_size +=1
+				model = array(trajectory[i])
+				this_cluster_idx.append(i)
+				centroid = centroid + model
+		centroid=centroid/cluster_size
+		min_rms = 50000
+		min_idx = -1
+		for e in this_cluster_idx:
+			rms = rmsd(centroid,trajectory[e])
+			if rms<min_rms:
+				min_rms = rms
+				min_idx = e
+		medoids_idx.append(min_idx)
+	for i in range(len(medoids_idx)):
+		pdb_data = "MODEL%9d\n" %(medoids_idx[i])
+		outfile = "model_%04d.pdb" %(i+1)
+		model = trajectory[medoids_idx[i]]
+		for ai in range(cabs.seqlen):
+			pdb_data += pdb_format %(ai+1,seq[ai],ai+1,model[3*ai],model[3*ai+1],model[3*ai+2])
+		pdb_data += "ENDMDL\n"
+		fw = open(outfile,"w")
+		fw.write(pdb_data)
+		fw.close()
+					
+	
+	return
+			
+				
+	
 
 		
 class Monitor(threading.Thread):
@@ -740,7 +786,8 @@ def rmsd(reference,arr):
 		rms = sqrt(Rg - dwa)
 	if(rms<1e-5): rms=0.0
 	return rms
-	
+		
+			
 class Info():
 	"""
 		Simple message system
@@ -828,9 +875,16 @@ if __name__ == "__main__":
 	a.createLatticeReplicas() # create start models from templates
 	a.modeling() # start modeling with default INP values and create TRAF.pdb when done
 	tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
+	
+	from Pycluster import *
+	from numpy import array
+	distances = zeros((len(tr),len(tr)))
 	for i in range(len(tr)):
-		for j in range(len(tr)):
-			print i,j,rmsd(tr[i],tr[j])
-
-	#a.convertPdbToDcd()
-    
+		for j in range(i,len(tr)):
+			rms = rmsd(tr[i],tr[j])
+			distances[i][j] = distances[j][i] = rms
+			
+	
+	clusterid,error,nfound = kmedoids(distances,nclusters=3,npass=15,initialid=None)
+	saveMedoids(clusterid,a)
+	print clusterid,error
