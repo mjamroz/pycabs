@@ -21,13 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from tempfile import mkdtemp
 from re import search,sub,compile,match
 from os import getcwd,chdir,path,mkdir,stat,remove,rename
-from numpy import fromfile,reshape,linalg,mean,std,zeros,unique
+from numpy import fromfile,reshape,linalg,mean,std,zeros,unique,indices
 from subprocess import Popen,PIPE
 from shutil import copyfile
 from math import sqrt,cos,sin,atan2
 import threading
 import time
-
 
 class CABS(threading.Thread):
 	"""
@@ -528,9 +527,29 @@ def parsePorterOutput(porter_output_fn):
 	except IOError as e:
 		print "I/O error({0}): {1}".format(e.errno, e.strerror)
 	return (seq,ss)
+def heat_map(data, x_label,y_label,colormap_label,output_file="heatmap.png",cmap='Greys'):
+	"""
+		Save heat map using pylab
+	"""
+	
+	from pylab import xlabel,ylabel,pcolor,colorbar,savefig 
+	l = len(data[0])
+	rows, cols = indices((l,l))
+	xlabel(x_label)
+	ylabel(y_label)
+	pcolor(data, cmap=cmap)
+	cb = colorbar()
+	cb.set_label(colormap_label)
+	savefig(output_file)
 	
 def saveMedoids(clusters,cabs):
-	
+	"""
+		Save cluster medoids in PDB file format.
+		
+		:param clusters: cluster indices as a output of C Clustering Library
+		:param clusters: list
+		
+	"""
 	seq = []
 	for s1 in cabs.sequence: seq.append(cabs.seq_trans[s1])
 	pdb_format = "ATOM   %4d  CA  %3s A%4d    %8.3f%8.3f%8.3f  1.00  0.00           C\n"
@@ -873,7 +892,7 @@ if __name__ == "__main__":
 	a = CABS(data[0],data[1],templates,working_dir) # initialize CABS, create required files
 	a.generateConstraints() 
 	a.createLatticeReplicas() # create start models from templates
-	a.modeling() # start modeling with default INP values and create TRAF.pdb when done
+	a.modeling(Htemp=3.0,cycles=5,phot=2) # start modeling with default INP values and create TRAF.pdb when done
 	tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
 	
 	from Pycluster import *
@@ -883,8 +902,10 @@ if __name__ == "__main__":
 		for j in range(i,len(tr)):
 			rms = rmsd(tr[i],tr[j])
 			distances[i][j] = distances[j][i] = rms
-			
+	heat_map(distances,"Protein model","Protein model","RMSD")		
 	
-	clusterid,error,nfound = kmedoids(distances,nclusters=3,npass=15,initialid=None)
+	clusterid,error,nfound = kmedoids(distances,nclusters=5,npass=15,initialid=None)
+	print clusterid,error
+	clusterid,error,nfound = kcluster(distances,nclusters=5,npass=15)
 	saveMedoids(clusterid,a)
 	print clusterid,error
