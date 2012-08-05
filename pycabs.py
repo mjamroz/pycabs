@@ -788,9 +788,9 @@ def rmsd(reference,arr):
 	root1 = c2Div3 - magnitudecs - magnituderoot
 	root2 = c2Div3 - magnitudecs +magnituderoot
     
-	if (abs(root0)<1e-6): root0 = 0.0
-	if (abs(root1)<1e-6): root1 = 0.0
-	if (abs(root2)<1e-6): root2 = 0.0
+	if (root0<1e-6): root0 = 0.0
+	if (root1<1e-6): root1 = 0.0
+	if (root2<1e-6): root2 = 0.0
     
 	roots = [root0,root1,root2]
 
