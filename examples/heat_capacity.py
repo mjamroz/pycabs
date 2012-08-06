@@ -15,7 +15,7 @@ def runCABS(temperature):
 	here = os.getcwd() # since pycabs changing directories...
 	a = pycabs.CABS(sequence,secstr,template,name+"_"+str(temperature))
 	a.createLatticeReplicas(replicas=1)
-	a.modeling(Ltemp=temperature,Htemp=temperature, phot=85,cycles=2)
+	a.modeling(Ltemp=temperature,Htemp=temperature, phot=185,cycles=3)
 	#remember to come back to `here` directory
 	os.chdir(here)
 
@@ -30,9 +30,9 @@ sequence = sss[0]
 secstr = sss[1]
 # now we have all data required to run CABS
 
-temp_from = 2.0
-temp_to  = 4.0
-temp_interval = 0.07
+temp_from = 1.8
+temp_to  = 3.0
+temp_interval = 0.1
 temperatures=np.arange(temp_from,temp_to,temp_interval) # ranges of temperature
 
 # create thread pool  with two parallel threads

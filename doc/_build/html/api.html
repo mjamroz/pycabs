@@ -110,24 +110,6 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 </tbody>
 </table>
 <dl class="method">
-<dt id="pycabs.CABS.calcConstraints">
-<tt class="descname">calcConstraints</tt><big>(</big><em>exclude_residues=</em><span class="optional">[</span><span class="optional">]</span>, <em>other_constraints=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#pycabs.CABS.calcConstraints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate distance constraints using templates 3D models.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>exclude_residues</strong> (<em>list</em>) &#8211; indexes of residues without constrains</li>
-<li><strong>constrains</strong> (<em>other</em>) &#8211; user-defined constrains as list of tuples: (residue_i_index,residue_j_index,constraint_strength)</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="pycabs.CABS.convertPdbToDcd">
 <tt class="descname">convertPdbToDcd</tt><big>(</big><em>catdcd_path='/home/hydek/pycabs/FF/catdcd'</em><big>)</big><a class="headerlink" href="#pycabs.CABS.convertPdbToDcd" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is only simple wrapper to CatDCD software (<a class="reference external" href="http://www.ks.uiuc.edu/Development/MDTools/catdcd/">http://www.ks.uiuc.edu/Development/MDTools/catdcd/</a>), 
@@ -156,6 +138,25 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <p class="first admonition-title">Note</p>
 <p class="last">If number of replicas is smaller than number of templates - program will create replicas using first <em>replicas</em> templates. If there is less templates than replicas, they are creating sequentially using template models.</p>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.CABS.generateConstraints">
+<tt class="descname">generateConstraints</tt><big>(</big><em>exclude_residues=</em><span class="optional">[</span><span class="optional">]</span>, <em>other_constraints=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#pycabs.CABS.generateConstraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate distance constraints using templates 3D models. Constraint will be a square well of size d-std_dev-1.0,d+std_dev+1.0, where d is mean distance among templates between Cα atoms (if constraint will be exceeded, there is penalty, scaled by weight.</p>
+<p>Weight is defined as a fraction of particular average distance among templates i.e. if pair of residues exist in 2 of 3 templates, weight will be 0.66. Using multiple sequence alignments it should provide stronger constraints on consistently aligned parts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exclude_residues</strong> (<em>list</em>) &#8211; indexes of residues without constrains</li>
+<li><strong>constrains</strong> (<em>other</em>) &#8211; user-defined constrains as list of tuples: (residue_i_index,residue_j_index,distance, constraint_strength)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -190,6 +191,20 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <dt id="pycabs.CABS.rng_seed">
 <tt class="descname">rng_seed</tt><em class="property"> = None</em><a class="headerlink" href="#pycabs.CABS.rng_seed" title="Permalink to this definition">¶</a></dt>
 <dd><p>seed for random generator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.CABS.savePdbModel">
+<tt class="descname">savePdbModel</tt><big>(</big><em>model_idx</em><big>)</big><a class="headerlink" href="#pycabs.CABS.savePdbModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save trajectory model into pdb file (model_`model_idx`.pdb).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>model_idx</strong> &#8211; index of model in CABS trajectory</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -275,7 +290,7 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <dl class="class">
 <dt id="pycabs.Template">
 <em class="property">class </em><tt class="descclassname">pycabs.</tt><tt class="descname">Template</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pycabs.Template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class used for template storage of atom positions and distance calculation</p>
+<dd><p>Class used for storage of templates atom positions and distance calculation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -304,6 +319,12 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 </table>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="pycabs.heat_map">
+<tt class="descclassname">pycabs.</tt><tt class="descname">heat_map</tt><big>(</big><em>data</em>, <em>x_label</em>, <em>y_label</em>, <em>colormap_label</em>, <em>output_file='heatmap.png'</em>, <em>cmap='Greys'</em><big>)</big><a class="headerlink" href="#pycabs.heat_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save heat map using pylab</p>
 </dd></dl>
 
 <dl class="function">
@@ -375,6 +396,24 @@ Psipred output looks like:</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">RMSD value after optimal superimposition of two structures</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycabs.saveMedoids">
+<tt class="descclassname">pycabs.</tt><tt class="descname">saveMedoids</tt><big>(</big><em>clusters</em>, <em>cabs</em><big>)</big><a class="headerlink" href="#pycabs.saveMedoids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save cluster medoids in PDB file format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clusters</strong> &#8211; cluster indices as a output of C Clustering Library</li>
+<li><strong>clusters</strong> &#8211; list</li>
+</ul>
 </td>
 </tr>
 </tbody>

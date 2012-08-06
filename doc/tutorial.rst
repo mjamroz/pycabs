@@ -12,6 +12,16 @@ Calculating heat capacity, :math:`C_v`
 
 .. literalinclude:: ../examples/heat_capacity.py
 
+Calculating dependency of average number of native contacts on temperature :math:`T`
+====================================================================================
+
+Contact in script below is defined as 1 if distance between C-alpha atoms is below :math:`8\AA` and sequence distance > 5 residues. Script run simulations in parallel fashion, and display plot at the end.
+
+.. literalinclude:: ../examples/transition_temp.py
+
+.. image:: images/avg_nat_cont.png
+
+
 Monitoring of CABS energy during simulation
 ===========================================
 

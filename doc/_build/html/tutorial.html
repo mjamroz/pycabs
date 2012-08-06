@@ -37,6 +37,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="api.html" title="pyCABS API"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -54,6 +57,7 @@
   <ul>
 <li><a class="reference internal" href="#">Tutorial</a><ul>
 <li><a class="reference internal" href="#calculating-heat-capacity">Calculating heat capacity, <img class="math" src="_images/math/b29f0a3f7b9b53f6dc306dc135951b8d7b36cfbf.png" alt="C_v"/></a></li>
+<li><a class="reference internal" href="#calculating-dependency-of-average-number-of-native-contacts-on-temperature">Calculating dependency of average number of native contacts on temperature <img class="math" src="_images/math/2554b6496c3b678897e9b060ef00aa9f0a7d7ece.png" alt="T"/></a></li>
 <li><a class="reference internal" href="#monitoring-of-cabs-energy-during-simulation">Monitoring of CABS energy during simulation</a></li>
 <li><a class="reference internal" href="#monitoring-of-end-to-end-distance-of-chain-during-simulation">Monitoring of end-to-end distance of chain during simulation</a></li>
 </ul>
@@ -164,6 +168,98 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="calculating-dependency-of-average-number-of-native-contacts-on-temperature">
+<h2>Calculating dependency of average number of native contacts on temperature <img class="math" src="_images/math/2554b6496c3b678897e9b060ef00aa9f0a7d7ece.png" alt="T"/><a class="headerlink" href="#calculating-dependency-of-average-number-of-native-contacts-on-temperature" title="Permalink to this headline">¶</a></h2>
+<p>Contact in script below is defined as 1 if distance between C-alpha atoms is below <img class="math" src="_images/math/16ccd072fc109e5867ed06b0ef8a27ecee9e4d5a.png" alt="8\AA"/> and sequence distance &gt; 5 residues. Script run simulations in parallel fashion, and display plot at the end.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="kn">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pycabs</span>
+
+<span class="k">def</span> <span class="nf">runCABS</span><span class="p">(</span><span class="n">temperature</span><span class="p">):</span>
+	<span class="c"># global for simplify arguments </span>
+	<span class="k">global</span> <span class="n">name</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span> 
+	
+	<span class="c"># function for running CABS with different temperatures</span>
+	<span class="c"># it will compute in directory name+_+temperature</span>
+	<span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="c"># since pycabs changing directories...</span>
+	<span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">name</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
+	<span class="n">a</span><span class="o">.</span><span class="n">createLatticeReplicas</span><span class="p">(</span><span class="n">replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+	<span class="c">#remember to come back to `here` directory</span>
+	<span class="n">t</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">getTraCoordinates</span><span class="p">()</span>
+	<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">here</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">t</span>
+
+<span class="c"># define function for contacts </span>
+<span class="c"># function return 1D array of 1/0</span>
+<span class="k">def</span> <span class="nf">contacts</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">seq_sep</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+	<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">sqrt</span>
+	<span class="n">contacts_arr</span><span class="o">=</span><span class="nb">bytearray</span><span class="p">()</span>
+	<span class="n">prot_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span> <span class="c"># pycabs recognize model as 1D list of len. 3N</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">prot_len</span><span class="o">-</span><span class="n">seq_sep</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="n">seq_sep</span><span class="p">,</span><span class="n">prot_len</span><span class="p">):</span>
+			<span class="n">x</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="p">]</span>
+			<span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+			<span class="n">z</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+			<span class="n">d</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">z</span><span class="o">*</span><span class="n">z</span><span class="p">)</span>
+			<span class="n">b</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">d</span><span class="o">&lt;</span><span class="n">cutoff</span> <span class="k">else</span> <span class="mi">0</span>
+			<span class="n">contacts_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">contacts_arr</span>
+<span class="k">def</span> <span class="nf">compare_contacts</span><span class="p">(</span><span class="n">contacts1</span><span class="p">,</span><span class="n">contacts2</span><span class="p">):</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="mf">0.0</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">contacts1</span><span class="p">)):</span>
+		<span class="k">if</span> <span class="n">contacts1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&amp;</span><span class="n">contacts2</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="c"># 0&amp;0=0&amp;1=0, 1&amp;1=1</span>
+			<span class="n">s</span><span class="o">+=</span><span class="mi">1</span>
+	<span class="k">return</span> <span class="n">s</span>	
+
+<span class="c">#init these variables _before_ running cabs</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">&quot;fnord&quot;</span>
+<span class="c"># we have some template, it has to be as list</span>
+<span class="n">template</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;/home/hydek/pycabs/playground/2pcy.pdb&quot;</span><span class="p">]</span> 
+<span class="c"># suppose we have porter prediction of sec. str.</span>
+<span class="n">sss</span> <span class="o">=</span>  <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/hydek/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> 
+<span class="n">sequence</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">secstr</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="c"># now we have all data required to run CABS</span>
+
+<span class="n">temp_from</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">temp_to</span>  <span class="o">=</span> <span class="mf">4.0</span>
+<span class="n">temp_interval</span> <span class="o">=</span> <span class="mf">0.15</span>
+<span class="n">temperatures</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">,</span><span class="n">temp_interval</span><span class="p">)</span> <span class="c"># ranges of temperature</span>
+
+<span class="c"># create thread pool  with two parallel threads</span>
+
+<span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">trajectories</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">runCABS</span><span class="p">,</span><span class="n">temperatures</span><span class="p">)</span> <span class="c"># run cabs threads</span>
+	
+<span class="c"># calculate contacts for native structure = &quot;template&quot; model for cabs</span>
+<span class="n">native</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePDBfile</span><span class="p">(</span><span class="n">template</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">native_contacts</span> <span class="o">=</span> <span class="n">contacts</span><span class="p">(</span><span class="n">native</span><span class="p">)</span>
+<span class="n">nat_contacts_len</span> <span class="o">=</span> <span class="n">compare_contacts</span><span class="p">(</span><span class="n">native_contacts</span><span class="p">,</span><span class="n">native_contacts</span><span class="p">)</span> <span class="c"># how many contacts in native structure</span>
+<span class="n">avg_nat_contacts</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">trajectory</span> <span class="ow">in</span> <span class="n">trajectories</span><span class="p">:</span>
+	<span class="n">nat_contacts_sum</span> <span class="o">=</span><span class="mf">0.0</span>
+	<span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="p">:</span>
+		<span class="n">model_contacts</span> <span class="o">=</span> <span class="n">contacts</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+		<span class="n">nat_contacts_sum</span> <span class="o">+=</span> <span class="n">compare_contacts</span><span class="p">(</span><span class="n">native_contacts</span><span class="p">,</span><span class="n">model_contacts</span><span class="p">)</span>
+	<span class="n">avg_nat_contacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nat_contacts_sum</span><span class="o">/</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trajectory</span><span class="p">)</span><span class="o">*</span><span class="n">nat_contacts_len</span><span class="p">))</span>
+
+
+
+<span class="c"># display plot</span>
+<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;temperature $T$&#39;</span><span class="p">)</span>
+<span class="n">ylabel</span><span class="p">(</span><span class="s">r&#39;average number of native contacts, &lt;Q&gt;&#39;</span> <span class="p">)</span>
+<span class="n">xlim</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">)</span> <span class="c"># xrange</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span><span class="n">avg_nat_contacts</span><span class="p">)</span>
+<span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="_images/avg_nat_cont.png" src="_images/avg_nat_cont.png" />
+</div>
 <div class="section" id="monitoring-of-cabs-energy-during-simulation">
 <h2>Monitoring of CABS energy during simulation<a class="headerlink" href="#monitoring-of-cabs-energy-during-simulation" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
@@ -266,6 +362,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="api.html" title="pyCABS API"
              >next</a> |</li>

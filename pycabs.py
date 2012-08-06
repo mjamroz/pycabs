@@ -485,7 +485,19 @@ def parsePsipredOutput(psipred_output_fn):
 	except IOError as e:
 		print "I/O error({0}): {1}".format(e.errno, e.strerror)
 	return (seq,ss)
-	
+
+def parsePDBfile(pdb_filename):
+	f = open(pdb_filename)
+	atm = compile(r"^ATOM.{9}CA.{7}(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
+	model = []
+	for line in f.readlines():
+		data = atm.match(line)
+		if data:
+			for v in data.groups()[1:]: model.append(float(v))
+	f.close()
+	return model
+			
+		
 def parsePorterOutput(porter_output_fn):
 	"""
 		Porter (protein secondary stucture prediction, http://distill.ucd.ie/porter/) output parser. 
