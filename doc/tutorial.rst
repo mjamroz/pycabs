@@ -12,6 +12,9 @@ Calculating heat capacity, :math:`C_v`
 
 .. literalinclude:: ../examples/heat_capacity.py
 
+.. image:: images/cv.png
+
+
 Calculating dependency of average number of native contacts on temperature :math:`T`
 ====================================================================================
 
