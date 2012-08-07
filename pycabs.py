@@ -219,11 +219,12 @@ class CABS(threading.Thread):
 				raise Errors("Maybe there is no ENERGY file in current directory, did you run CABS.modeling method before?")
 			return energy
 			
-	def savePdbModel(self, model_idx):
+	def savePdbModel(self, model_idx, filename=''):
 		"""
-			Save trajectory model into pdb file (model_`model_idx`.pdb).
+			Save trajectory model into pdb file
 			
 			:param model_idx: index of model in CABS trajectory
+			:param filename: name of the output file. If empty, it saves to model_index.pdb
 		"""
 		if path.isfile("TRAF"):
 			seq = []
@@ -248,7 +249,11 @@ class CABS(threading.Thread):
 				for ai in range(self.seqlen):
 					pdb_data += pdb_format %(ai+1,seq[ai],ai+1,model[3*ai],model[3*ai+1],model[3*ai+2])
 				pdb_data += "ENDMDL\n"		
-				out = "model_%04d.pdb" % (model_idx)
+				if filename='':
+					out = "model_%04d.pdb" % (model_idx)
+				else:
+					out = filename
+					
 				fw = open(out,"w")
 				fw.write(pdb_data)
 				fw.close()
