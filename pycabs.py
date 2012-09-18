@@ -45,7 +45,7 @@ class CABS(threading.Thread):
 	"""
 
 	def __init__(self,sequence,secondary_structure,templates_filenames, project_name):
-		self.FF = "/home/hydek/pycabs/FF" # TODO !!!
+		self.FF = "/home/user/pycabs/FF" # TODO !!!
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
 		if path.isdir(project_name):
@@ -249,7 +249,7 @@ class CABS(threading.Thread):
 				for ai in range(self.seqlen):
 					pdb_data += pdb_format %(ai+1,seq[ai],ai+1,model[3*ai],model[3*ai+1],model[3*ai+2])
 				pdb_data += "ENDMDL\n"		
-				if filename='':
+				if filename=='':
 					out = "model_%04d.pdb" % (model_idx)
 				else:
 					out = filename
@@ -336,7 +336,7 @@ class CABS(threading.Thread):
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
 				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")
 				
-	def convertPdbToDcd(self,catdcd_path="/home/hydek/pycabs/FF/catdcd"):
+	def convertPdbToDcd(self,catdcd_path="/home/user/pycabs/FF/catdcd"):
 		"""
 			This is only simple wrapper to CatDCD software (http://www.ks.uiuc.edu/Development/MDTools/catdcd/), 
 			could be usable since \*.dcd binary format is few times lighter than pdb, and many python libraries 
@@ -767,8 +767,7 @@ def rmsd(reference,arr):
 	covmat5 *= invlen
 	covmat6 *= invlen
 	covmat7 *= invlen
-	covmat8 *= invlen
-	
+	covmat8 *= invlen	
 	determinant = covmat0*(covmat4*covmat8 - covmat5*covmat7) - \
 	covmat1*(covmat3*covmat8-covmat5*covmat6) + covmat2*\
 	(covmat3*covmat7-covmat4*covmat6)
@@ -903,9 +902,9 @@ class Template:
 
 # tests
 if __name__ == "__main__":
-	data =  parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
+	data =  parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
 	working_dir = "modelowanie2pcy" # name of project 
-	templates = ["/home/hydek/pycabs/playground/2pcy_CA.pdb","/home/hydek/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
+	templates = ["/home/user/pycabs/playground/2pcy_CA.pdb","/home/user/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
 	a = CABS(data[0],data[1],templates,working_dir) # initialize CABS, create required files
 	a.generateConstraints() 
 	a.createLatticeReplicas() # create start models from templates
