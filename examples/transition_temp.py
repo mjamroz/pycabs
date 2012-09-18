@@ -45,9 +45,9 @@ def compare_contacts(contacts1,contacts2):
 #init these variables _before_ running cabs
 name = "fnord"
 # we have some template, it has to be as list
-template=["/home/hydek/pycabs/playground/2pcy.pdb"] 
+template=["/home/user/pycabs/playground/2pcy.pdb"] 
 # suppose we have porter prediction of sec. str.
-sss =  pycabs.parsePorterOutput("/home/hydek/pycabs/proba/playground/porter.ss") 
+sss =  pycabs.parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") 
 sequence = sss[0]
 secstr = sss[1]
 # now we have all data required to run CABS
