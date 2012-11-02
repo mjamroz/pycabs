@@ -51,7 +51,13 @@ class CABS(threading.Thread):
 		if path.isdir(project_name):
 			raise Errors("Directory "+project_name+" exists. Choose another project name")
 		self.sequence = sequence
+		self.seqlen = len(sequence)
+		
 		self.ss = secondary_structure
+		if len(templates_filenames)==0: # if 0 templates = DE NOVO 
+			templates_filenames.append(self.__getInitForDeNovo())
+			print templates_filenames
+			
 		self.templates_fn = templates_filenames
 		self.cwd = getcwd()
 		sub(r'\s', '', project_name)
@@ -59,7 +65,6 @@ class CABS(threading.Thread):
 		mkdir(self.pname)
 		chdir(self.pname)
 		
-		self.seqlen = len(sequence)
 		self.rng_seed = 1799	#: seed for random generator
 		self.constraints = 0
 		
@@ -72,7 +77,15 @@ class CABS(threading.Thread):
 		'W':"TRP",'Y':"TYR",'V':"VAL"}
 		
 		self._createSEQ() # we always need SEQ file so I put it here
-
+	def __getInitForDeNovo(self):
+		
+		f_chain =open(self.FF+"/extended.pdb").readlines()
+		fw = open("start.pdb","w")
+		fw.write("".join(f_chain[:self.seqlen]))
+		fw.close()
+		return path.abspath("start.pdb")
+		
+		
 	def createLatticeReplicas(self,start_structures_fn=[],replicas=20):
 		"""
 			Create protein models projected onto CABS lattice, which will be used as replicas.
@@ -904,11 +917,11 @@ class Template:
 if __name__ == "__main__":
 	data =  parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
 	working_dir = "modelowanie2pcy" # name of project 
-	templates = ["/home/user/pycabs/playground/2pcy_CA.pdb","/home/user/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
+	templates = [] # deNOVO "/home/user/pycabs/playground/2pcy_CA.pdb","/home/user/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
 	a = CABS(data[0],data[1],templates,working_dir) # initialize CABS, create required files
-	a.generateConstraints() 
+	# DENOVO a.generateConstraints() 
 	a.createLatticeReplicas() # create start models from templates
-	a.modeling(Htemp=3.0,cycles=5,phot=2) # start modeling with default INP values and create TRAF.pdb when done
+	a.modeling(Htemp=3.0,cycles=1,phot=1) # start modeling with default INP values and create TRAF.pdb when done
 	tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
 	
 	from Pycluster import *
