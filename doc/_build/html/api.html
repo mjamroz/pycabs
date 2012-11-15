@@ -111,7 +111,7 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 </table>
 <dl class="method">
 <dt id="pycabs.CABS.convertPdbToDcd">
-<tt class="descname">convertPdbToDcd</tt><big>(</big><em>catdcd_path='/home/hydek/pycabs/FF/catdcd'</em><big>)</big><a class="headerlink" href="#pycabs.CABS.convertPdbToDcd" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">convertPdbToDcd</tt><big>(</big><em>catdcd_path='/home/user/pycabs/FF/catdcd'</em><big>)</big><a class="headerlink" href="#pycabs.CABS.convertPdbToDcd" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is only simple wrapper to CatDCD software (<a class="reference external" href="http://www.ks.uiuc.edu/Development/MDTools/catdcd/">http://www.ks.uiuc.edu/Development/MDTools/catdcd/</a>), 
 could be usable since *.dcd binary format is few times lighter than pdb, and many python libraries 
 (ProDy, MDAnalysis) use *.dcd as trajectory input format.
@@ -181,7 +181,28 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">2D list of trajectory coordinates</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">2D list of trajectory coordinates ( list[1][6] is sixth coordinate of second trajectory model = z coordinate of second atom of second model)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.CABS.modeling">
+<tt class="descname">modeling</tt><big>(</big><em>Ltemp=1.0</em>, <em>Htemp=2.0</em>, <em>cycles=1</em>, <em>phot=1</em>, <em>constraints_force=1.0</em><big>)</big><a class="headerlink" href="#pycabs.CABS.modeling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start CABS modeling</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Ltemp</strong> (<em>float</em>) &#8211; Low temperature for Replica Exchange Monte Carlo</li>
+<li><strong>Htemp</strong> (<em>float</em>) &#8211; High temperature for Replica Exchange Monte Carlo</li>
+<li><strong>cycles</strong> (<em>integer</em>) &#8211; number of Replica Exchange cycles</li>
+<li><strong>iphot</strong> (<em>integer</em>) &#8211; number of microcycles (inside REMC loop)</li>
+<li><strong>constraints_force</strong> (<em>float</em>) &#8211; Slope of constraints force potential</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -195,13 +216,17 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 
 <dl class="method">
 <dt id="pycabs.CABS.savePdbModel">
-<tt class="descname">savePdbModel</tt><big>(</big><em>model_idx</em><big>)</big><a class="headerlink" href="#pycabs.CABS.savePdbModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save trajectory model into pdb file (model_`model_idx`.pdb).</p>
+<tt class="descname">savePdbModel</tt><big>(</big><em>model_idx</em>, <em>filename=''</em><big>)</big><a class="headerlink" href="#pycabs.CABS.savePdbModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save trajectory model into pdb file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>model_idx</strong> &#8211; index of model in CABS trajectory</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model_idx</strong> &#8211; index of model in CABS trajectory</li>
+<li><strong>filename</strong> &#8211; name of the output file. If empty, it saves to model_index.pdb</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -297,6 +322,8 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; path to file with template (in PDB format)</td>
 </tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Nx3 list of coordinates</td>
+</tr>
 </tbody>
 </table>
 <dl class="method">
@@ -325,6 +352,30 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <dt id="pycabs.heat_map">
 <tt class="descclassname">pycabs.</tt><tt class="descname">heat_map</tt><big>(</big><em>data</em>, <em>x_label</em>, <em>y_label</em>, <em>colormap_label</em>, <em>output_file='heatmap.png'</em>, <em>cmap='Greys'</em><big>)</big><a class="headerlink" href="#pycabs.heat_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save heat map using pylab</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<em>float</em>) &#8211; 2D list of values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycabs.parsePDBfile">
+<tt class="descclassname">pycabs.</tt><tt class="descname">parsePDBfile</tt><big>(</big><em>pdb_filename</em><big>)</big><a class="headerlink" href="#pycabs.parsePDBfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for parsing of Cα coordinates from PDB file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pdb_filename</strong> (<em>string</em>) &#8211; path to PDB file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">1D list of Cα coordinates (for example: list[4] is y-th coordinate of second atom)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">

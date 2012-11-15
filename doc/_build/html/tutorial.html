@@ -60,6 +60,8 @@
 <li><a class="reference internal" href="#calculating-dependency-of-average-number-of-native-contacts-on-temperature">Calculating dependency of average number of native contacts on temperature <img class="math" src="_images/math/2554b6496c3b678897e9b060ef00aa9f0a7d7ece.png" alt="T"/></a></li>
 <li><a class="reference internal" href="#monitoring-of-cabs-energy-during-simulation">Monitoring of CABS energy during simulation</a></li>
 <li><a class="reference internal" href="#monitoring-of-end-to-end-distance-of-chain-during-simulation">Monitoring of end-to-end distance of chain during simulation</a></li>
+<li><a class="reference internal" href="#de-novo-modeling-of-2pcy-structure">De-novo modeling of 2PCY structure</a></li>
+<li><a class="reference internal" href="#save-contact-map-of-c-atoms">Save contact map of Cα atoms</a></li>
 </ul>
 </li>
 </ul>
@@ -119,7 +121,7 @@
 	<span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="c"># since pycabs changing directories...</span>
 	<span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">name</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
 	<span class="n">a</span><span class="o">.</span><span class="n">createLatticeReplicas</span><span class="p">(</span><span class="n">replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-	<span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+	<span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 	<span class="c">#remember to come back to `here` directory</span>
 	<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">here</span><span class="p">)</span>
 
@@ -127,14 +129,14 @@
 <span class="c">#init these variables _before_ running cabs</span>
 <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;fnord&quot;</span>
 <span class="c"># we have some template, it has to be as list</span>
-<span class="n">template</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;/home/hydek/pycabs/playground/2pcy.pdb&quot;</span><span class="p">]</span> 
+<span class="n">template</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;/home/user/pycabs/playground/2pcy.pdb&quot;</span><span class="p">]</span> 
 <span class="c"># suppose we have porter prediction of sec. str.</span>
-<span class="n">sss</span> <span class="o">=</span>  <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/hydek/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> 
+<span class="n">sss</span> <span class="o">=</span>  <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/user/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> 
 <span class="n">sequence</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">secstr</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="c"># now we have all data required to run CABS</span>
 
-<span class="n">temp_from</span> <span class="o">=</span> <span class="mf">1.8</span>
+<span class="n">temp_from</span> <span class="o">=</span> <span class="mf">1.5</span>
 <span class="n">temp_to</span>  <span class="o">=</span> <span class="mf">3.0</span>
 <span class="n">temp_interval</span> <span class="o">=</span> <span class="mf">0.1</span>
 <span class="n">temperatures</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">,</span><span class="n">temp_interval</span><span class="p">)</span> <span class="c"># ranges of temperature</span>
@@ -219,9 +221,9 @@
 <span class="c">#init these variables _before_ running cabs</span>
 <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;fnord&quot;</span>
 <span class="c"># we have some template, it has to be as list</span>
-<span class="n">template</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;/home/hydek/pycabs/playground/2pcy.pdb&quot;</span><span class="p">]</span> 
+<span class="n">template</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;/home/user/pycabs/playground/2pcy.pdb&quot;</span><span class="p">]</span> 
 <span class="c"># suppose we have porter prediction of sec. str.</span>
-<span class="n">sss</span> <span class="o">=</span>  <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/hydek/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> 
+<span class="n">sss</span> <span class="o">=</span>  <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/user/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> 
 <span class="n">sequence</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">secstr</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="c"># now we have all data required to run CABS</span>
@@ -348,6 +350,108 @@
     <span class="n">draw</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="de-novo-modeling-of-2pcy-structure">
+<h2>De-novo modeling of 2PCY structure<a class="headerlink" href="#de-novo-modeling-of-2pcy-structure" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">pycabs</span>
+<span class="kn">from</span> <span class="nn">Pycluster</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span>
+
+<span class="n">data</span> <span class="o">=</span>  <span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/user/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> <span class="c"># read PORTER (or PsiPred) secondary structure prediction</span>
+<span class="n">working_dir</span> <span class="o">=</span> <span class="s">&quot;de_novo&quot;</span> <span class="c"># name of project </span>
+<span class="n">templates</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># deNOVO</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">templates</span><span class="p">,</span><span class="n">working_dir</span><span class="p">)</span> <span class="c"># initialize CABS, create required files</span>
+<span class="c"># DENOVO a.generateConstraints() </span>
+<span class="n">a</span><span class="o">.</span><span class="n">createLatticeReplicas</span><span class="p">()</span> <span class="c"># create start models from templates</span>
+<span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Htemp</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">phot</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="c"># start modeling with default INP values and create TRAF.pdb when done</span>
+<span class="n">tr</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">getTraCoordinates</span><span class="p">()</span> <span class="c"># load TRAF into memory and calculate RMSD all-vs-all : </span>
+
+
+<span class="c">#calculating RMSD 2D array for clustering</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">tr</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">tr</span><span class="p">)))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tr</span><span class="p">)):</span>
+	<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">tr</span><span class="p">)):</span>
+		<span class="n">rms</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">rmsd</span><span class="p">(</span><span class="n">tr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">tr</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+		<span class="n">distances</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rms</span>
+		
+<span class="c">#save RMSD array as heat map</span>
+<span class="n">heat_map</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span><span class="s">&quot;Protein model&quot;</span><span class="p">,</span><span class="s">&quot;Protein model&quot;</span><span class="p">,</span><span class="s">&quot;RMSD&quot;</span><span class="p">)</span>		
+
+
+<span class="c"># clustering by K-medoids method (with 5 clusters)</span>
+<span class="n">clusterid</span><span class="p">,</span><span class="n">error</span><span class="p">,</span><span class="n">nfound</span> <span class="o">=</span> <span class="n">kmedoids</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span><span class="n">nclusters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">npass</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">initialid</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">clusterid</span><span class="p">,</span><span class="n">error</span>
+<span class="n">clusterid</span><span class="p">,</span><span class="n">error</span><span class="p">,</span><span class="n">nfound</span> <span class="o">=</span> <span class="n">kcluster</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span><span class="n">nclusters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">npass</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+<span class="c"># save cluster medoids to file</span>
+<span class="n">pycabs</span><span class="o">.</span><span class="n">saveMedoids</span><span class="p">(</span><span class="n">clusterid</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">clusterid</span><span class="p">,</span><span class="n">error</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="save-contact-map-of-c-atoms">
+<h2>Save contact map of Cα atoms<a class="headerlink" href="#save-contact-map-of-c-atoms" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c"># linijke coding podaje sie by mozna bylo uzywac np polskich znakow w kodzie</span>
+
+<span class="kn">import</span> <span class="nn">pycabs</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span> <span class="c"># importujemy funkcje do liczenia pierwiastka</span>
+
+<span class="n">pdb_model</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePDBfile</span><span class="p">(</span><span class="s">&quot;../playground/2pcy.pdb&quot;</span><span class="p">)</span> <span class="c"># path to the file in the PDB format</span>
+<span class="c"># w pdb_model będą atomy Cα w jednowymiarowej liscie, tzn ze jest dlugosci 3xN i np pdb_model[3] to x-owa wspolrzedna drugiego atomu, a pdb_model[4] to y-kowa wspolrzedna 2-go atomu</span>
+<span class="k">print</span> <span class="n">pdb_model</span> <span class="c"># test, czy faktycznie</span>
+
+<span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">model</span><span class="p">):</span>
+	<span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span> <span class="c"># teraz wiemy ile mamy atomow. Lista &quot;model&quot; bedzie jednowymiarowa, tak ze ma 3xN wspolrzednych</span>
+	<span class="n">xi</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>     <span class="c"># na pozycjach w takiej liscie 3*i beda zawsze x-y</span>
+	<span class="n">yi</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="c"># a na pozycji 3i + 1 beda zawsze y-ki</span>
+	<span class="n">zi</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+	
+	<span class="n">xj</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="p">]</span>     <span class="c"># i to samo dla j-tego atomu</span>
+	<span class="n">yj</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>   
+	<span class="n">zj</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>     
+	
+	<span class="n">xt</span> <span class="o">=</span> <span class="n">xi</span> <span class="o">-</span> <span class="n">xj</span> <span class="c"># odejmujemy, bo wzor na odleglosc kartezjanska to pierwiastek z (xi - xj)^2 + (yi-yj)^2 + (zi-zj)^2 </span>
+	<span class="n">yt</span> <span class="o">=</span> <span class="n">yi</span> <span class="o">-</span> <span class="n">yj</span>
+	<span class="n">zt</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">-</span> <span class="n">zj</span>
+	
+	<span class="n">distance</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">xt</span><span class="o">*</span><span class="n">xt</span> <span class="o">+</span> <span class="n">yt</span><span class="o">*</span><span class="n">yt</span> <span class="o">+</span> <span class="n">zt</span><span class="o">*</span><span class="n">zt</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">distance</span>
+
+<span class="c"># teraz test (zakomentuj to sobie pozniej - komentuje sie znakiem &quot;#&quot;), zobaczymy czy odleglosci miedzy atomami i-1,i to faktycznie 3.8 Angstroma:</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">pdb_model</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">):</span> <span class="c"># podzielilem przez trzy bo ta lista ma dlugosc 3N, a teraz i bedzie od 1...N (tak naprawde do 1...N-1)</span>
+    <span class="n">odleglosc</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">pdb_model</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="si">%5.2f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">odleglosc</span><span class="p">)</span> <span class="c"># mozna to tak wyswietlic, wtedy bedzie zaokraglalo do 2-go miejsca po przecinku. jak dasz samo print odleglosc to zaokragli do ok 15tego miejsca - brzydko wyglada</span>
+    <span class="c"># teraz jak to uruchomisz to wyswietli liste, gdzie bedzie mniej wiecej 3.8</span>
+    
+<span class="c"># no dobra, a teraz chcemy mape kontaktow</span>
+<span class="c"># tworzymy pusta macierz 2x2</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">zeros</span> <span class="c"># importujemy funkcje do tworzenia wygodnych macierzy 2D</span>
+
+<span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdb_model</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span> <span class="c"># zapiszemy dlugosc lancucha do zmiennej l, bo uzyjemy jej kilka razy, tak ze zeby nie trzeba bylo za kazdym razem tego liczyc</span>
+
+<span class="n">macierz</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="n">l</span><span class="p">,</span><span class="n">l</span><span class="p">))</span> <span class="c"># tu ma podwojne nawiasy, bo tak naprawde to (l,l) to jest krotka/tupla. tak jakby jedna zmienna. ona definiuje wymiar macierzy. funkcja nazywa sie zeros, bo tworzy macierz wypelniona zerami</span>
+
+<span class="n">cutoff</span> <span class="o">=</span> <span class="mf">6.0</span> <span class="c"># definiujemy cutoff kontaktu. jesli odleglosc &lt; cutoff, wtedy mamy kontakt</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+	<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">pdb_model</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="n">cutoff</span><span class="p">:</span>
+			<span class="n">macierz</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+		<span class="c">#else:  tego nie trzeba, bo macierz od poczatku ma zera</span>
+
+<span class="c"># i teraz mozemy zapisac taka macierz:</span>
+<span class="n">pycabs</span><span class="o">.</span><span class="n">heat_map</span><span class="p">(</span><span class="n">macierz</span><span class="p">,</span><span class="s">&quot;Numer reszty&quot;</span><span class="p">,</span> <span class="s">&quot;Numer reszty&quot;</span><span class="p">,</span><span class="s">&quot;Mapa kontaktow&quot;</span><span class="p">,</span><span class="n">output_file</span><span class="o">=</span><span class="s">&quot;kontakty.png&quot;</span><span class="p">)</span>
+
+<span class="c"># powinien sie pojawic plik &quot;kontakty.png&quot; z obrazkiem</span>
+</pre></div>
+</div>
+<img alt="_images/kontakty.png" src="_images/kontakty.png" />
 </div>
 </div>
 

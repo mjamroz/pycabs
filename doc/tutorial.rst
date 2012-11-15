@@ -34,3 +34,15 @@ Monitoring of end-to-end distance of chain during simulation
 ============================================================
 
 .. literalinclude:: ../examples/monitoring_e2e_distance.py
+
+De-novo modeling of 2PCY structure
+==================================
+
+.. literalinclude:: ../examples/de_novo.py
+
+Save contact map of Cα atoms
+=========================================
+
+.. literalinclude:: ../examples/contact_map.py
+
+.. image:: images/kontakty.png

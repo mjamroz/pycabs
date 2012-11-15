@@ -279,7 +279,7 @@ class CABS(threading.Thread):
 		"""
 			Read trajectory file into 2D list of coordinates
 			
-			:return: 2D list of trajectory coordinates
+			:return: 2D list of trajectory coordinates ( list[1][6] is sixth coordinate of second trajectory model = z coordinate of second atom of second model)
 		"""
 		trajectory = []
 		if path.isfile("TRAF"):
@@ -392,8 +392,24 @@ class CABS(threading.Thread):
 		rename("ACHAINS_NEW","FCHAINS")
 	def setParameters(self,	 Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
 		pass
-	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=1,phot=1,constraints_force=1.0):
 		
+		
+	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=1,phot=1,constraints_force=1.0):
+		"""
+			Start CABS modeling
+			
+			:param Ltemp: Low temperature for Replica Exchange Monte Carlo
+			:type Ltemp: float
+			:param Htemp: High temperature for Replica Exchange Monte Carlo
+			:type Htemp: float
+			:param cycles: number of Replica Exchange cycles
+			:type cycles: integer
+			:param iphot: number of microcycles (inside REMC loop)
+			:type iphot: integer
+			:param constraints_force: Slope of constraints force potential
+			:type constraints_force: float
+			
+		"""
 		#preprocessing
 		self._copyFFFiles()
 		
@@ -505,6 +521,15 @@ def parsePsipredOutput(psipred_output_fn):
 	return (seq,ss)
 
 def parsePDBfile(pdb_filename):
+	"""
+	
+		Function for parsing of Cα coordinates from PDB file. 
+		
+		:param pdb_filename: path to PDB file
+		:type pdb_filename: string
+		:return: 1D list of Cα coordinates (for example: list[4] is y-th coordinate of second atom)
+	
+	"""
 	f = open(pdb_filename)
 	atm = compile(r"^ATOM.{9}CA.{7}(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
 	model = []
@@ -560,6 +585,10 @@ def parsePorterOutput(porter_output_fn):
 def heat_map(data, x_label,y_label,colormap_label,output_file="heatmap.png",cmap='Greys'):
 	"""
 		Save heat map using pylab
+		
+		:param data: 2D list of values
+		:type data: float
+		
 	"""
 	
 	from pylab import xlabel,ylabel,pcolor,colorbar,savefig 
@@ -861,7 +890,7 @@ class Template:
 		Class used for storage of templates atom positions and distance calculation
 		
 		:param filename: path to file with template (in PDB format)
-		
+		:return: Nx3 list of coordinates
 	"""
 
 	def __init__(self,filename):
