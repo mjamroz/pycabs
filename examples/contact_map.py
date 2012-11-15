@@ -11,7 +11,6 @@ pdb_model = pycabs.parsePDBfile("../playground/2pcy.pdb") # path to the file in 
 print pdb_model # test, czy faktycznie
 
 def distance(i,j,model):
-	l = len(model)/3 # teraz wiemy ile mamy atomow. Lista "model" bedzie jednowymiarowa, tak ze ma 3xN wspolrzednych
 	xi = model[3*i]     # na pozycjach w takiej liscie 3*i beda zawsze x-y
 	yi = model[3*i + 1] # a na pozycji 3i + 1 beda zawsze y-ki
 	zi = model[3*i + 2]
@@ -54,4 +53,5 @@ for i in range(l):
 # i teraz mozemy zapisac taka macierz:
 pycabs.heat_map(macierz,"Numer reszty", "Numer reszty","Mapa kontaktow",output_file="kontakty.png")
 
-# powinien sie pojawic plik "kontakty.png" z obrazkiem
+# powinien sie pojawic plik "kontakty.png" z obrazkiem mapy kontaktow
+# no i bedziemy robic podobne rzeczy, tylko dla calej trajektorii, a nie tylko dla jednego modelu
