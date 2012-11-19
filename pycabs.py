@@ -45,7 +45,7 @@ class CABS(threading.Thread):
 	"""
 
 	def __init__(self,sequence,secondary_structure,templates_filenames, project_name):
-		self.FF = "/home/user/pycabs/FF" # TODO !!!
+		self.FF = "/home/mjamroz/pycabs/FF" # TODO !!!
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
 		if path.isdir(project_name):
@@ -944,15 +944,18 @@ class Template:
 
 # tests
 if __name__ == "__main__":
-	data =  parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
+	#data =  parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
+	seq = "IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEEDLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN"
+	ss = "CEEEECCCCCCCEEECCEEEECCCCEEEEEECCCCCCEEEECCCCCCCCCCCCCCCCCCCCCCCCCCCEEEEECCCCEEEEEECCCCCCCCCEEEEEEC"
 	working_dir = "modelowanie2pcy" # name of project 
-	templates = [] # deNOVO "/home/user/pycabs/playground/2pcy_CA.pdb","/home/user/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
-	a = CABS(data[0],data[1],templates,working_dir) # initialize CABS, create required files
+	templates = ["/home/mjamroz/pycabs/playground/2pcy_CA.pdb"]#,"/home/mjamroz/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
+	a = CABS(seq,ss,templates,working_dir) # initialize CABS, create required files
 	# DENOVO a.generateConstraints() 
 	a.createLatticeReplicas() # create start models from templates
 	a.modeling(Htemp=3.0,cycles=1,phot=1) # start modeling with default INP values and create TRAF.pdb when done
 	tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
 	
+	clu = '''
 	from Pycluster import *
 	from numpy import array
 	distances = zeros((len(tr),len(tr)))
@@ -967,3 +970,4 @@ if __name__ == "__main__":
 	clusterid,error,nfound = kcluster(distances,nclusters=5,npass=15)
 	saveMedoids(clusterid,a)
 	print clusterid,error
+    	'''
