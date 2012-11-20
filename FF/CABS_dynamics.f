@@ -1057,7 +1057,7 @@ c	atemp temperature of a replica, lowest replica temp=aatemp1
 	DO ITEMP=REPLICAS-1,1,-1
         	WRITE(66,666) ATREP(ITEMP),EREPLICA(ITEMP)
 	ENDDO
-666	FORMAT(2F9.3)
+666	FORMAT(2F13.3)
 	DO ITEMP=REPLICAS-1,1,-1
 		DO ITEMP1=REPLICAS, ITEMP+1, -1
 c
