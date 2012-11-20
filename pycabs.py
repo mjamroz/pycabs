@@ -394,7 +394,7 @@ class CABS(threading.Thread):
 		pass
 		
 		
-	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=1,phot=1,constraints_force=1.0):
+	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=1,phot=1,constraints_force=1.0,dynamics=False):
 		"""
 			Start CABS modeling
 			
@@ -436,6 +436,8 @@ class CABS(threading.Thread):
 		# run CABS	
 		print Info("CABS started...")
 		arg = path.join(self.FF,"cabs")
+        if dynamics:
+            arg = path.join(self.FF,"cabs_dynamics")
 		cabsstart = Popen([arg], shell=True, stdout=PIPE)
 		cabsstart.communicate()
 		print Info("CABS Done.")
