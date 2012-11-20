@@ -436,8 +436,8 @@ class CABS(threading.Thread):
 		# run CABS	
 		print Info("CABS started...")
 		arg = path.join(self.FF,"cabs")
-        if dynamics:
-            arg = path.join(self.FF,"cabs_dynamics")
+        	if dynamics:
+	            arg = path.join(self.FF,"cabs_dynamics")
 		cabsstart = Popen([arg], shell=True, stdout=PIPE)
 		cabsstart.communicate()
 		print Info("CABS Done.")
@@ -488,6 +488,27 @@ class CABS(threading.Thread):
 
 
 #33############ Utilities ########################
+def parseDSSPOutput(filename):
+    """
+        Helper function for extracting sequence and secondary structure assignments from the DSSP output. Useful for dynamics studies or other where we know protein structure.
+        
+        You can download DSSP files directly from PDB server: http://www.pdb.org/pdb/files/PDBID.dssp
+    """
+    h = open(filename,"r")
+    while 1:
+        l=h.readline()
+        if(l.startswith("  #  RESIDUE AA STRUCTURE")):
+            break
+    seq = ""
+    ss = ""
+    for line in h.readlines():
+        #data = line.split()
+        if(line[13]!="!"):
+            seq += line[13]
+            ss += line[16].replace(" ","C").replace("B","C").replace("G","C").replace("I","C").replace("T","C").replace("S","C")
+		
+    return (seq,ss)
+    
 def parsePsipredOutput(psipred_output_fn):
 	"""
 	Psipred (protein secondary structure prediction, http://bioinf.cs.ucl.ac.uk/psipred/) output parser. 
