@@ -49,7 +49,7 @@ for i in range(len(temperatures)):
 	energy = np.fromfile(e_path,sep='\n') # read ENERGY data into array `energy`
 	avg_energy2 = np.average(energy*energy) # <E^2>
 	avg_energy = np.average(energy)		    # <E>^2
-	cv[i] = (avg_energy2 - avg_energy*avg_energy)/(t*t) # (<E^2> - <E>^2) / T^2
+	cv[i] = np.std(energy)/(t*t) # (<E^2> - <E>^2) / T^2
 # now we have heat capacity in cv array	
 
 # ... and display plot
