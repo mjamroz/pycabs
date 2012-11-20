@@ -408,6 +408,9 @@ class CABS(threading.Thread):
 			:type iphot: integer
 			:param constraints_force: Slope of constraints force potential
 			:type constraints_force: float
+            :param dynamics: Use of special CABS version for dynamics pathway studies
+			:type dynamics: boolean
+            
 			
 		"""
 		#preprocessing
