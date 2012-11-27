@@ -83,7 +83,6 @@ class CABS(threading.Thread):
 		fw = open("start.pdb","w")
 		fw.write("".join(f_chain[:self.seqlen]))
 		fw.close()
-		f_chain.close()
 		return path.abspath("start.pdb")
 		
 		
@@ -634,6 +633,7 @@ def loadTRAFCoordinates(filename):
 			
 			:return: 2D list of trajectory coordinates ( list[1][6] is sixth coordinate of second trajectory model = z coordinate of second atom of second model)
 		"""
+
 		trajectory = []
 		if path.isfile(filename):
 			try:
@@ -642,7 +642,7 @@ def loadTRAFCoordinates(filename):
 				traf.close()
 				model = []
 				for l in t[1:]:
-					if "." in l: # "." is only in TRAF header	
+					if "." in l: # "." is only in TRAF header
 						model = model[3:-3] # skip dummy atoms
 						trajectory.append(model)
 						model = []

@@ -1,0 +1,1 @@
+g77 -static -O2 -ffloat-store
