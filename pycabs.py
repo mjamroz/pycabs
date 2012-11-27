@@ -627,7 +627,34 @@ def heat_map(data, x_label,y_label,colormap_label,output_file="heatmap.png",cmap
 	cb = colorbar()
 	cb.set_label(colormap_label)
 	savefig(output_file)
-	
+
+def loadTRAFCoordinates(filename):
+		"""
+			Read trajectory file into 2D list of coordinates
+			
+			:return: 2D list of trajectory coordinates ( list[1][6] is sixth coordinate of second trajectory model = z coordinate of second atom of second model)
+		"""
+		trajectory = []
+		if path.isfile(filename):
+			try:
+				traf = open(filename)
+				t = traf.readlines()
+				traf.close()
+				model = []
+				for l in t[1:]:
+					if "." in l: # "." is only in TRAF header	
+						model = model[3:-3] # skip dummy atoms
+						trajectory.append(model)
+						model = []
+					else:	# load coordinates
+						for coord in l.split(): model.append(int(coord)*0.61) 
+				model = model[3:-3] # skip dummy atoms
+				trajectory.append(model)
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")		
+		return trajectory
+
 def saveMedoids(clusters,cabs):
 	"""
 		Save cluster medoids in PDB file format.
