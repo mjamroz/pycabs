@@ -164,6 +164,7 @@ c	Strenghts rescaled in this version
 	OPEN(UNIT=9, FILE='TRAF',   STATUS='NEW')
 	OPEN(UNIT=26,FILE='QUASI3S',  STATUS='OLD')
 	OPEN(UNIT=11,FILE='R14',   STATUS='OLD')
+      OPEN(UNIT=23,FILE='ENERGY', STATUS='NEW')
 	OPEN(UNIT=12,FILE='R15',   STATUS='OLD')
 	OPEN(UNIT=13,FILE='R13',   STATUS='OLD')
 	OPEN(UNIT=29,FILE='CENTRO',  STATUS='OLD')
@@ -1950,6 +1951,7 @@ c
 
 	iiii=(IDDDUM-1)*10+ICYCLE
 	
+	write(23,*) energ
 	WRITE(9,716) IIII, LENF, energ, aarand,abrand
 	WRITE(40,716) IIII, LENF2,ENERG, aarand, abrand
 

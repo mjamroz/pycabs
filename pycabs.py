@@ -83,6 +83,7 @@ class CABS(threading.Thread):
 		fw = open("start.pdb","w")
 		fw.write("".join(f_chain[:self.seqlen]))
 		fw.close()
+		f_chain.close()
 		return path.abspath("start.pdb")
 		
 		
