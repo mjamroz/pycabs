@@ -768,7 +768,7 @@ def contact_map(trajectory, contact_cutoff):
 	"""
 
 	model_len = len(trajectory[0])/3 # model is a 1D list of coordinates
-	contacts_tmp = np.zeros((model_len,model_len))
+	contacts_tmp = zeros((model_len,model_len))
 	cutoff2=contact_cutoff*contact_cutoff
 	for model in trajectory:
 		for i in range(model_len-1):
