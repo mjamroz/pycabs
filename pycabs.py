@@ -484,7 +484,34 @@ class CABS(threading.Thread):
 			f.close()
 		except IOError as e:
 			print "I/O error({0}): {1}".format(e.errno, e.strerror)
-			
+	def loadSGCoordinates(self):
+		"""
+			Read center of mass of sidegroups from TRASG file
+
+			:return: 2D list of sidechains coordinates
+
+		"""
+		filename = "TRASG"
+		trajectory = []
+		if path.isfile(filename):
+			try:
+				traf = open(filename)
+				t = traf.readlines()
+				traf.close()
+				chain_len = int(t[0].split()[1])+1
+				for i in range(0,len(t),chain_len):
+					model = []
+					for j in range(i+1,i+chain_len):
+						coo = t[j].split()
+						model.append(float(coo[1])*0.61)
+						model.append(float(coo[2])*0.61)
+						model.append(float(coo[3])*0.61)
+					trajectory.append(model)
+					
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				raise Errors("Maybe there is no TRASG file in current directory, did you run CABS.modeling method before?")		
+		return trajectory		
 			
 			
 
@@ -655,6 +682,35 @@ def loadTRAFCoordinates(filename):
 				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")		
 		return trajectory
 
+def loadSGCoordinates(filename):
+		"""
+			Read center of mass of sidegroups from TRASG file
+
+			:param filename: path to the TRASG file
+			:return: 2D list of sidechains coordinates
+
+		"""
+		trajectory = []
+		if path.isfile(filename):
+			try:
+				traf = open(filename)
+				t = traf.readlines()
+				traf.close()
+				chain_len = int(t[0].split()[1])+1
+				for i in range(0,len(t),chain_len):
+					model = []
+					for j in range(i+1,i+chain_len):
+						coo = t[j].split()
+						model.append(float(coo[1])*0.61)
+						model.append(float(coo[2])*0.61)
+						model.append(float(coo[3])*0.61)
+					trajectory.append(model)
+					
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				raise Errors("Maybe there is no TRASG file in current directory, did you run CABS.modeling method before?")		
+		return trajectory
+		
 def saveMedoids(clusters,cabs):
 	"""
 		Save cluster medoids in PDB file format.
@@ -701,7 +757,31 @@ def saveMedoids(clusters,cabs):
 					
 	
 	return
-			
+def contact_map(trajectory, contact_cutoff):
+	"""
+		Compute fraction of contacts in trajectory, where trajectory is 2D list of coordinates (trajectory[2][5] is the z-th coordinate of second atom of third model)
+
+		:param trajectory: 2D trajectory of atoms (Cα, sidegroups center of mass, etc.)
+		:param contact_cutoff: cutoff defining contact
+
+		:return: 2D array of fraction of contacts (number of contacts divided by trajectory length) for each pair of residue.
+	"""
+
+	model_len = len(trajectory[0])/3 # model is a 1D list of coordinates
+	contacts_tmp = np.zeros((model_len,model_len))
+	cutoff2=contact_cutoff*contact_cutoff
+	for model in trajectory:
+		for i in range(model_len-1):
+			for j in range(i+1,model_len):
+				x_dist = model[3*i] - model[3*j]
+				y_dist = model[3*i+1] - model[3*j+1]
+				z_dist = model[3*i+2] - model[3*j+2]
+				d = x_dist*x_dist + y_dist*y_dist + z_dist*z_dist
+				if d<cutoff2:
+					contacts_tmp[i][j] += 1.0
+					contacts_tmp[j][i] += 1.0
+	contacts_tmp/=len(trajectory)
+	return contacts_tmp			
 				
 	
 
