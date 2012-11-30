@@ -215,8 +215,63 @@ class CABS(threading.Thread):
 			iter += 1
 		f.close()
 						
-				
+	def generateConstraintsOld(self,exclude_residues=[],other_constraints=[]):			
+		"""
+			Calculate distance constraints using templates 3D models. Constraint will be a square well of size min(d), max(d) where d is mean distance among templates between Cα atoms (if constraint will be exceeded, there is penalty, scaled by weight.
 			
+			Weight is defined as a fraction of particular average distance among templates i.e. if pair of residues exist in 2 of 3 templates, weight will be 0.66. Using multiple sequence alignments it should provide stronger constraints on consistently aligned parts. 
+			
+			:param exclude_residues: indexes of residues without constrains
+			:type exclude_residues: list
+			:param other constrains: user-defined constrains as list of tuples: (residue_i_index,residue_j_index,distance, constraint_strength)
+			:type other_constraints: list
+			
+		"""
+		t = [] # here is list with templates structures
+		for template_path in self.templates_fn:
+			model = Template(template_path)
+			t.append(model)
+		max_resid = -1
+		for temp in t:
+			if temp.getLastResidueIndex()>max_resid:
+				max_resid = temp.getLastResidueIndex()
+		
+		constraints = []
+		for i in range(1,max_resid):
+			later_j = []
+			jtmp  = 14
+			for l in range(14):
+				jtmp = int(jtmp*1.7)
+				if jtmp+i<max_resid:
+					later_j.append(jtmp)
+				else:
+					break
+			for j in [5,14]+later_j:
+				ji = j+i
+				if ji>max_resid or i in other_constraints or ji in other_constraints or i in exclude_residues or ji in exclude_residues:
+					continue
+					
+				distances = []
+				for temp in t:
+					d = temp.distance(i,ji)
+					if d:
+						distances.append(d)
+				if(len(distances)>0):
+					
+					d_min = min(distances)
+					d_max = max(distances)
+					d_weight = len(distances)/(1.0+abs(d_max-d_min))
+					
+					constraint = (i,ji,d_min,d_max,d_weight)
+					constraints.append(constraint)
+		self.constraints = len(constraints+other_constraints)
+		f = open("constraints.dat","w")
+		iter = 1
+		for c in constraints+other_constraints:
+			f.write( "%4d %5d %5d %6.2f %6.2f %5.2f\n"%(c[0],c[1],iter,round(c[2],2),round(c[3],2),round(c[4],2)))
+			iter += 1
+		f.close()
+        			
 	def getEnergy(self):
 		"""
 			Read CABS energy values into list
@@ -1084,10 +1139,10 @@ if __name__ == "__main__":
 	working_dir = "modelowanie2pcy" # name of project 
 	templates = ["/home/mjamroz/pycabs/playground/2pcy_CA.pdb"]#,"/home/mjamroz/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
 	a = CABS(seq,ss,templates,working_dir) # initialize CABS, create required files
-	# DENOVO a.generateConstraints() 
-	a.createLatticeReplicas() # create start models from templates
-	a.modeling(Htemp=3.0,cycles=1,phot=1) # start modeling with default INP values and create TRAF.pdb when done
-	tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
+	a.generateConstraintsOld() 
+	#a.createLatticeReplicas() # create start models from templates
+	#a.modeling(Htemp=3.0,cycles=1,phot=1) # start modeling with default INP values and create TRAF.pdb when done
+	#tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
 	
 	clu = '''
 	from Pycluster import *
