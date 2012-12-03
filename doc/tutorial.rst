@@ -38,7 +38,7 @@ Study folding pathway: 2) calculate average contact map over trajectory of sideg
 
 .. literalinclude:: ../examples/folding_pathway/contact_map.py
 
-:download:`contact_map.py <../examples/folding_pathway/contact_map.py>`.
+Download script: :download:`contact_map.py <../examples/folding_pathway/contact_map.py>`.
 
 Results:
 

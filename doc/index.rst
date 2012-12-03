@@ -3,9 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to CABS's documentation!
+Welcome to CABS's webpage
 ================================
 
+Download CABS:
+
+:download:`pycabs.tar.gz <../pycabs.tar.gz>` (or github repository: `pycabs <https://github.com/mjamroz/pycabs>`_)
+
+:download:`CABS.tar.gz <../CABS.tar.gz>` 
 
 
 Contents:
