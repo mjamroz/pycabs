@@ -57,11 +57,11 @@
   <ul>
 <li><a class="reference internal" href="#">Tutorial</a><ul>
 <li><a class="reference internal" href="#calculating-heat-capacity">Calculating heat capacity, <img class="math" src="_images/math/b29f0a3f7b9b53f6dc306dc135951b8d7b36cfbf.png" alt="C_v"/></a></li>
-<li><a class="reference internal" href="#calculating-dependency-of-average-number-of-native-contacts-on-temperature">Calculating dependency of average number of native contacts on temperature <img class="math" src="_images/math/2554b6496c3b678897e9b060ef00aa9f0a7d7ece.png" alt="T"/></a></li>
+<li><a class="reference internal" href="#study-folding-pathway-1-create-standard-deviation-and-mean-energy-plots-for-barnase">Study folding pathway: 1) create standard deviation and mean energy plots for Barnase</a></li>
+<li><a class="reference internal" href="#study-folding-pathway-2-calculate-average-contact-map-over-trajectory-of-sidegroups-in-temperature-2-1">Study folding pathway: 2) calculate average contact map over trajectory of sidegroups in temperature 2.1</a></li>
 <li><a class="reference internal" href="#monitoring-of-cabs-energy-during-simulation">Monitoring of CABS energy during simulation</a></li>
 <li><a class="reference internal" href="#monitoring-of-end-to-end-distance-of-chain-during-simulation">Monitoring of end-to-end distance of chain during simulation</a></li>
 <li><a class="reference internal" href="#de-novo-modeling-of-2pcy-structure">De-novo modeling of 2PCY structure</a></li>
-<li><a class="reference internal" href="#save-contact-map-of-c-atoms">Save contact map of Cα atoms</a></li>
 </ul>
 </li>
 </ul>
@@ -155,7 +155,7 @@
 	<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">e_path</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> <span class="c"># read ENERGY data into array `energy`</span>
 	<span class="n">avg_energy2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">energy</span><span class="o">*</span><span class="n">energy</span><span class="p">)</span> <span class="c"># &lt;E^2&gt;</span>
 	<span class="n">avg_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>		    <span class="c"># &lt;E&gt;^2</span>
-	<span class="n">cv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">avg_energy2</span> <span class="o">-</span> <span class="n">avg_energy</span><span class="o">*</span><span class="n">avg_energy</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">t</span><span class="o">*</span><span class="n">t</span><span class="p">)</span> <span class="c"># (&lt;E^2&gt; - &lt;E&gt;^2) / T^2</span>
+	<span class="n">cv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">t</span><span class="o">*</span><span class="n">t</span><span class="p">)</span> <span class="c"># (&lt;E^2&gt; - &lt;E&gt;^2) / T^2</span>
 <span class="c"># now we have heat capacity in cv array	</span>
 
 <span class="c"># ... and display plot</span>
@@ -169,99 +169,181 @@
 <span class="c">#remember that you have name+_+temperature directories, delete it or sth</span>
 </pre></div>
 </div>
+<p>Download script: <a class="reference download internal" href="_downloads/heat_capacity.py"><tt class="xref download docutils literal"><span class="pre">heat_capacity.py</span></tt></a>.</p>
 <img alt="_images/cv.png" src="_images/cv.png" />
 </div>
-<div class="section" id="calculating-dependency-of-average-number-of-native-contacts-on-temperature">
-<h2>Calculating dependency of average number of native contacts on temperature <img class="math" src="_images/math/2554b6496c3b678897e9b060ef00aa9f0a7d7ece.png" alt="T"/><a class="headerlink" href="#calculating-dependency-of-average-number-of-native-contacts-on-temperature" title="Permalink to this headline">¶</a></h2>
-<p>Contact in script below is defined as 1 if distance between C-alpha atoms is below <img class="math" src="_images/math/16ccd072fc109e5867ed06b0ef8a27ecee9e4d5a.png" alt="8\AA"/> and sequence distance &gt; 5 residues. Script run simulations in parallel fashion, and display plot at the end.</p>
+<div class="section" id="study-folding-pathway-1-create-standard-deviation-and-mean-energy-plots-for-barnase">
+<h2>Study folding pathway: 1) create standard deviation and mean energy plots for Barnase<a class="headerlink" href="#study-folding-pathway-1-create-standard-deviation-and-mean-energy-plots-for-barnase" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="kn">as</span> <span class="nn">mp</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="c"># 2013, Michal Jamroz, public domain. http://biocomp.chem.uw.edu.pl</span>
 
-<span class="kn">import</span> <span class="nn">pycabs</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">pylab</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">pycabs</span><span class="o">,</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span><span class="o">,</span> <span class="nn">multiprocessing</span> <span class="kn">as</span> <span class="nn">mp</span>
+<span class="c"># first of all, download pyCABS and set self.FF = &quot;&quot; to the FF directory with cabs files</span>
+<span class="c"># to compile CABS, use: g77 -O2 -ffloat-store -static -o cabs CABS.f </span>
+<span class="c"># to compile lattice model builder, use g77 -O2 -ffloat-store -static build_cabs61.f</span>
+
+<span class="n">sequence</span><span class="p">,</span> <span class="n">secstr</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">parseDSSPOutput</span><span class="p">(</span><span class="s">&quot;1bnr.dssp&quot;</span><span class="p">)</span> <span class="c"># define file with secondary structure definition of define sequence and secondary structure in sequence,secstr variables respectively</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">&quot;barnase&quot;</span> <span class="c"># name for the project. Script will create subdirectories with this name as suffix</span>
+<span class="n">template</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;../1bnr.pdb&quot;</span><span class="p">]</span> <span class="c"># set path to the start structure (here - native structure). If user want to start from random chain, set template=[]. Note that path is relative to simulation directory</span>
+<span class="n">independent_runs</span><span class="o">=</span><span class="mi">5</span>  <span class="c"># set number of independent simulations for each temperature</span>
+<span class="n">temp_from</span> <span class="o">=</span> <span class="mf">1.0</span>     <span class="c"># define range of simulation temperatures, here is 1.0 - 2.8 with interval of 0.1</span>
+<span class="n">temp_to</span>  <span class="o">=</span> <span class="mf">2.8</span>
+<span class="n">temp_interval</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">temperatures</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">,</span><span class="n">temp_interval</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">runCABS</span><span class="p">(</span><span class="n">temperature</span><span class="p">):</span>
-	<span class="c"># global for simplify arguments </span>
-	<span class="k">global</span> <span class="n">name</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span> 
-	
-	<span class="c"># function for running CABS with different temperatures</span>
-	<span class="c"># it will compute in directory name+_+temperature</span>
-	<span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="c"># since pycabs changing directories...</span>
-	<span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">name</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
-	<span class="n">a</span><span class="o">.</span><span class="n">createLatticeReplicas</span><span class="p">(</span><span class="n">replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-	<span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-	<span class="c">#remember to come back to `here` directory</span>
-	<span class="n">t</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">getTraCoordinates</span><span class="p">()</span>
-	<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">here</span><span class="p">)</span>
-	<span class="k">return</span> <span class="n">t</span>
+   <span class="k">global</span> <span class="n">name</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">independent_runs</span>
+   <span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
+      <span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+      <span class="n">dir_name</span><span class="o">=</span> <span class="n">name</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;_T&quot;</span><span class="o">+</span><span class="n">temp</span>  <span class="c"># create unique name for simulation dir</span>
+      <span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">dir_name</span><span class="p">)</span> 
+      <span class="n">a</span><span class="o">.</span><span class="n">rng_seed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10000</span><span class="p">)</span> <span class="c"># set random generator seed for each independent simulation</span>
+      <span class="n">a</span><span class="o">.</span><span class="n">createLatticeReplicas</span><span class="p">(</span><span class="n">replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c"># create lattice model for CABS</span>
+      <span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="c"># start modeling. phot is CABS microcycle, cycles variable is CABS macrocycle (how often write to the trajectory file)</span>
+      <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">here</span><span class="p">)</span>
 
-<span class="c"># define function for contacts </span>
-<span class="c"># function return 1D array of 1/0</span>
-<span class="k">def</span> <span class="nf">contacts</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">seq_sep</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-	<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">sqrt</span>
-	<span class="n">contacts_arr</span><span class="o">=</span><span class="nb">bytearray</span><span class="p">()</span>
-	<span class="n">prot_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span> <span class="c"># pycabs recognize model as 1D list of len. 3N</span>
-	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">prot_len</span><span class="o">-</span><span class="n">seq_sep</span><span class="p">):</span>
-		<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="n">seq_sep</span><span class="p">,</span><span class="n">prot_len</span><span class="p">):</span>
-			<span class="n">x</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="p">]</span>
-			<span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-			<span class="n">z</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
-			<span class="n">d</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">z</span><span class="o">*</span><span class="n">z</span><span class="p">)</span>
-			<span class="n">b</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">d</span><span class="o">&lt;</span><span class="n">cutoff</span> <span class="k">else</span> <span class="mi">0</span>
-			<span class="n">contacts_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-	<span class="k">return</span> <span class="n">contacts_arr</span>
-<span class="k">def</span> <span class="nf">compare_contacts</span><span class="p">(</span><span class="n">contacts1</span><span class="p">,</span><span class="n">contacts2</span><span class="p">):</span>
-	<span class="n">s</span> <span class="o">=</span> <span class="mf">0.0</span>
-	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">contacts1</span><span class="p">)):</span>
-		<span class="k">if</span> <span class="n">contacts1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&amp;</span><span class="n">contacts2</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="c"># 0&amp;0=0&amp;1=0, 1&amp;1=1</span>
-			<span class="n">s</span><span class="o">+=</span><span class="mi">1</span>
-	<span class="k">return</span> <span class="n">s</span>	
+<span class="c">#pool = mp.Pool()  # it use all available CPUs on workstation. If user want to use only - for example two - CPUs, set pool = mp.Pool(2)</span>
+<span class="c">#pool.map(runCABS,temperatures) # run simulations in parallel way, each simulation on each available CPU</span>
 
-<span class="c">#init these variables _before_ running cabs</span>
-<span class="n">name</span> <span class="o">=</span> <span class="s">&quot;fnord&quot;</span>
-<span class="c"># we have some template, it has to be as list</span>
-<span class="n">template</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;/home/user/pycabs/playground/2pcy.pdb&quot;</span><span class="p">]</span> 
-<span class="c"># suppose we have porter prediction of sec. str.</span>
-<span class="n">sss</span> <span class="o">=</span>  <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/user/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> 
-<span class="n">sequence</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">secstr</span> <span class="o">=</span> <span class="n">sss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="c"># now we have all data required to run CABS</span>
+<span class="c"># postprocessing (comment out two lines above to avoid starting over simulations. If you want to only plot with other labels, etc. )</span>
 
-<span class="n">temp_from</span> <span class="o">=</span> <span class="mf">0.1</span>
-<span class="n">temp_to</span>  <span class="o">=</span> <span class="mf">4.0</span>
-<span class="n">temp_interval</span> <span class="o">=</span> <span class="mf">0.15</span>
-<span class="n">temperatures</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">,</span><span class="n">temp_interval</span><span class="p">)</span> <span class="c"># ranges of temperature</span>
+<span class="n">cv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">independent_runs</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)])</span>
+<span class="n">avgene</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">independent_runs</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)])</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
+   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)):</span>
+      <span class="n">t</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+      <span class="n">e_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="o">+</span><span class="s">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;_T&#39;</span><span class="o">+</span><span class="n">temp</span><span class="p">,</span><span class="s">&#39;ENERGY&#39;</span><span class="p">)</span> <span class="c"># path constructed in the same way like dir_name in runCABS definition above</span>
+      <span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">e_path</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> <span class="c"># read CABS energies for each trajectory model</span>
+      <span class="n">cv</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>  <span class="c"># calculate standard deviation (numpy std function) of energy, for each independent simulation</span>
+      <span class="n">avgene</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span> <span class="c"># calculate mean (numpy mean function) of energy</span>
 
-<span class="c"># create thread pool  with two parallel threads</span>
 
-<span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">trajectories</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">runCABS</span><span class="p">,</span><span class="n">temperatures</span><span class="p">)</span> <span class="c"># run cabs threads</span>
-	
-<span class="c"># calculate contacts for native structure = &quot;template&quot; model for cabs</span>
-<span class="n">native</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePDBfile</span><span class="p">(</span><span class="n">template</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">native_contacts</span> <span class="o">=</span> <span class="n">contacts</span><span class="p">(</span><span class="n">native</span><span class="p">)</span>
-<span class="n">nat_contacts_len</span> <span class="o">=</span> <span class="n">compare_contacts</span><span class="p">(</span><span class="n">native_contacts</span><span class="p">,</span><span class="n">native_contacts</span><span class="p">)</span> <span class="c"># how many contacts in native structure</span>
-<span class="n">avg_nat_contacts</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">trajectory</span> <span class="ow">in</span> <span class="n">trajectories</span><span class="p">:</span>
-	<span class="n">nat_contacts_sum</span> <span class="o">=</span><span class="mf">0.0</span>
-	<span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="p">:</span>
-		<span class="n">model_contacts</span> <span class="o">=</span> <span class="n">contacts</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-		<span class="n">nat_contacts_sum</span> <span class="o">+=</span> <span class="n">compare_contacts</span><span class="p">(</span><span class="n">native_contacts</span><span class="p">,</span><span class="n">model_contacts</span><span class="p">)</span>
-	<span class="n">avg_nat_contacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nat_contacts_sum</span><span class="o">/</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trajectory</span><span class="p">)</span><span class="o">*</span><span class="n">nat_contacts_len</span><span class="p">))</span>
+<span class="n">mean_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cv</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>    <span class="c"># average over independent simulations</span>
+<span class="n">stddev_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">cv</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">mean_ene</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">avgene</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c"># calculate of standard deviations and mean values over independent simulations</span>
+<span class="n">stddev_ene</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">avgene</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c"># plotting data with pylab python module. Read matplotlib manual (http://matplotlib.org/) for explanation of below code</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r&#39;Standard deviation of energy&#39;</span> <span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;Temperature, $T$&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">cv</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">&#39;.&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span><span class="n">mean_sigma</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">stddev_sigma</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s">&#39;o-&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;stdE_barnase.png&quot;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r&#39;Mean energy&#39;</span> <span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;Temperature, $T$&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">avgene</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">&#39;.&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span><span class="n">mean_ene</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">stddev_ene</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s">&#39;o-&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;meanE_barnase.png&quot;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
 
-<span class="c"># display plot</span>
-<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;temperature $T$&#39;</span><span class="p">)</span>
-<span class="n">ylabel</span><span class="p">(</span><span class="s">r&#39;average number of native contacts, $&lt;Q&gt;$&#39;</span> <span class="p">)</span>
-<span class="n">xlim</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">)</span> <span class="c"># xrange</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span><span class="n">avg_nat_contacts</span><span class="p">)</span>
-<span class="n">show</span><span class="p">()</span>
+<span class="c"># as a results user will get a lot of barnase* subdirectories, stdE_barnase.png and meanE_barnase.png files.</span>
+<span class="c"># EOF</span>
 </pre></div>
 </div>
-<img alt="_images/avg_nat_cont.png" src="_images/avg_nat_cont.png" />
+<p>Download script: <a class="reference download internal" href="_downloads/folding_pathway.py"><tt class="xref download docutils literal"><span class="pre">folding_pathway.py</span></tt></a>.
+Download necessary files: <a class="reference download internal" href="_downloads/1bnr.pdb"><tt class="xref download docutils literal"><span class="pre">1bnr.pdb</span></tt></a>, <a class="reference download internal" href="_downloads/1bnr.dssp"><tt class="xref download docutils literal"><span class="pre">1bnr.dssp</span></tt></a></p>
+<p>Results:</p>
+<img alt="_images/stdE_barnase.png" src="_images/stdE_barnase.png" />
+<img alt="_images/meanE_barnase.png" src="_images/meanE_barnase.png" />
+</div>
+<div class="section" id="study-folding-pathway-2-calculate-average-contact-map-over-trajectory-of-sidegroups-in-temperature-2-1">
+<h2>Study folding pathway: 2) calculate average contact map over trajectory of sidegroups in temperature 2.1<a class="headerlink" href="#study-folding-pathway-2-calculate-average-contact-map-over-trajectory-of-sidegroups-in-temperature-2-1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
+<span class="c"># 2013, Michal Jamroz, public domain. http://biocomp.chem.uw.edu.pl</span>
+<span class="kn">import</span> <span class="nn">pycabs</span><span class="o">,</span><span class="nn">os</span><span class="o">,</span><span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">name</span> <span class="o">=</span> <span class="s">&quot;barnase&quot;</span> <span class="c"># set project name same like in folding_pathway.py script</span>
+<span class="n">max_sd_temperature</span><span class="o">=</span><span class="mf">2.1</span> <span class="c"># read from the plot temperature for which maximum deviation of energy is observed</span>
+<span class="n">independent_runs</span><span class="o">=</span><span class="mi">5</span>     <span class="c"># set the same value like in folding_pathway.py script</span>
+
+
+
+<span class="c"># read trajectory of sidegroups (TRASG) from all independent simulations to the trajectory variable</span>
+<span class="n">trajectory</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
+	<span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">max_sd_temperature</span><span class="p">)</span>
+	<span class="n">e_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="o">+</span><span class="s">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;_T&#39;</span><span class="o">+</span><span class="n">temp</span><span class="p">,</span><span class="s">&#39;TRASG&#39;</span><span class="p">)</span>
+	<span class="n">trajectory</span> <span class="o">+=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">loadSGCoordinates</span><span class="p">(</span><span class="n">e_path</span><span class="p">)</span>
+
+
+<span class="n">contact</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">contact_map</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span><span class="mf">7.0</span><span class="p">)</span> <span class="c"># calculate averaged contact map over trajectories. Cutoff set to 7.0A.</span>
+
+<span class="c"># plot contact map with pylab. Read matplotlib manual (http://matplotlib.org/) for explanation of the code below</span>
+<span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">xlabel</span><span class="p">,</span><span class="n">ylabel</span><span class="p">,</span><span class="n">pcolor</span><span class="p">,</span><span class="n">colorbar</span><span class="p">,</span><span class="n">savefig</span><span class="p">,</span><span class="n">xlim</span><span class="p">,</span><span class="n">ylim</span><span class="p">,</span><span class="n">cm</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">indices</span>
+<span class="n">l</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">trajectory</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">indices</span><span class="p">((</span><span class="n">l</span><span class="p">,</span><span class="n">l</span><span class="p">))</span>
+<span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Residue index&quot;</span><span class="p">)</span>
+<span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">contact</span><span class="p">))</span>
+<span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">contact</span><span class="p">))</span>
+<span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Residue index&quot;</span><span class="p">)</span>
+<span class="n">pcolor</span><span class="p">(</span><span class="n">contact</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">gnuplot2_r</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span> <span class="c"># vmax is range of colorbar. Here is set to 0.8, which gave white color for all values greater than 0.8</span>
+<span class="n">cb</span> <span class="o">=</span> <span class="n">colorbar</span><span class="p">()</span>
+<span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&quot;Fraction of contacts&quot;</span><span class="p">)</span>
+<span class="n">savefig</span><span class="p">(</span><span class="s">&quot;heatmap&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">max_sd_temperature</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;.png&quot;</span><span class="p">)</span>
+
+<span class="c"># optionally, write contact map values into the text file formatted for GNUplot</span>
+<span class="n">fw</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;contact_map.dat&quot;</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">contact</span><span class="p">)):</span>
+   <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">contact</span><span class="p">)):</span>
+      <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%5d</span><span class="s"> </span><span class="si">%5d</span><span class="s"> </span><span class="si">%7.5f</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">contact</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+   <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c"># example GNUplot script for plotting contact map of contact_map.dat file:</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">set terminal unknown</span>
+<span class="sd">plot &#39;contact_map.dat&#39; using 1:2:3</span>
+<span class="sd">set xrange[GPVAL_DATA_X_MIN:GPVAL_DATA_X_MAX]</span>
+<span class="sd">set yrange[GPVAL_DATA_Y_MIN:GPVAL_DATA_Y_MAX]</span>
+
+
+<span class="sd">set terminal postscript eps enhanced color &quot;Helvetica&quot; 14</span>
+<span class="sd">set output &#39;contact_map.eps&#39;</span>
+<span class="sd">set size ratio 1</span>
+<span class="sd">unset key</span>
+<span class="sd">set xlabel &#39;Residue index&#39;</span>
+<span class="sd">set ylabel &#39;Residue index&#39;</span>
+<span class="sd">set cbrange[:0.8]</span>
+<span class="sd">set palette negative</span>
+<span class="sd">plot &#39;contact_map.dat&#39; with image</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># write it to the file.gp and run: gnuplot file.gp to get postscript file with heat map plot</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" href="_downloads/contact_map.py"><tt class="xref download docutils literal"><span class="pre">contact_map.py</span></tt></a>.</p>
+<p>Results:</p>
+<img alt="_images/heatmap2.1.png" src="_images/heatmap2.1.png" />
+<p>Optionally, GNUplot script for plotting contact_map.dat file generated by contact_map.py script:</p>
+<div class="highlight-python"><pre>set terminal unknown
+plot 'contact_map.dat' using 1:2:3
+set xrange[GPVAL_DATA_X_MIN:GPVAL_DATA_X_MAX]
+set yrange[GPVAL_DATA_Y_MIN:GPVAL_DATA_Y_MAX]
+
+
+set terminal postscript eps enhanced color "Helvetica" 14
+set output 'contact_map.eps'
+set size ratio 1
+unset key
+set xlabel 'Residue index'
+set ylabel 'Residue index'
+set cbrange[:0.8]
+set palette negative
+plot 'contact_map.dat' with image
+</pre>
+</div>
+<p>Download script: <a class="reference download internal" href="_downloads/gnuplot_script.gp"><tt class="xref download docutils literal"><span class="pre">gnuplot_script.gp</span></tt></a>.</p>
 </div>
 <div class="section" id="monitoring-of-cabs-energy-during-simulation">
 <h2>Monitoring of CABS energy during simulation<a class="headerlink" href="#monitoring-of-cabs-energy-during-simulation" title="Permalink to this headline">¶</a></h2>
@@ -303,6 +385,7 @@
     <span class="n">draw</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>Download script: <a class="reference download internal" href="_downloads/monitoring_energy.py"><tt class="xref download docutils literal"><span class="pre">monitoring_energy.py</span></tt></a>.</p>
 </div>
 <div class="section" id="monitoring-of-end-to-end-distance-of-chain-during-simulation">
 <h2>Monitoring of end-to-end distance of chain during simulation<a class="headerlink" href="#monitoring-of-end-to-end-distance-of-chain-during-simulation" title="Permalink to this headline">¶</a></h2>
@@ -350,6 +433,7 @@
     <span class="n">draw</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>Download script: <a class="reference download internal" href="_downloads/monitoring_e2e_distance.py"><tt class="xref download docutils literal"><span class="pre">monitoring_e2e_distance.py</span></tt></a>.</p>
 </div>
 <div class="section" id="de-novo-modeling-of-2pcy-structure">
 <h2>De-novo modeling of 2PCY structure<a class="headerlink" href="#de-novo-modeling-of-2pcy-structure" title="Permalink to this headline">¶</a></h2>
@@ -389,69 +473,7 @@
 <span class="k">print</span> <span class="n">clusterid</span><span class="p">,</span><span class="n">error</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="save-contact-map-of-c-atoms">
-<h2>Save contact map of Cα atoms<a class="headerlink" href="#save-contact-map-of-c-atoms" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- coding: utf-8 -*-</span>
-
-<span class="c"># linijke coding podaje sie by mozna bylo uzywac np polskich znakow w kodzie</span>
-
-<span class="kn">import</span> <span class="nn">pycabs</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span> <span class="c"># importujemy funkcje do liczenia pierwiastka</span>
-
-<span class="n">pdb_model</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePDBfile</span><span class="p">(</span><span class="s">&quot;../playground/2pcy.pdb&quot;</span><span class="p">)</span> <span class="c"># path to the file in the PDB format</span>
-<span class="c"># w pdb_model będą atomy Cα w jednowymiarowej liscie, tzn ze jest dlugosci 3xN i np pdb_model[3] to x-owa wspolrzedna drugiego atomu, a pdb_model[4] to y-kowa wspolrzedna 2-go atomu</span>
-<span class="k">print</span> <span class="n">pdb_model</span> <span class="c"># test, czy faktycznie</span>
-
-<span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">model</span><span class="p">):</span>
-	<span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span> <span class="c"># teraz wiemy ile mamy atomow. Lista &quot;model&quot; bedzie jednowymiarowa, tak ze ma 3xN wspolrzednych</span>
-	<span class="n">xi</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>     <span class="c"># na pozycjach w takiej liscie 3*i beda zawsze x-y</span>
-	<span class="n">yi</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="c"># a na pozycji 3i + 1 beda zawsze y-ki</span>
-	<span class="n">zi</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
-	
-	<span class="n">xj</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="p">]</span>     <span class="c"># i to samo dla j-tego atomu</span>
-	<span class="n">yj</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>   
-	<span class="n">zj</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>     
-	
-	<span class="n">xt</span> <span class="o">=</span> <span class="n">xi</span> <span class="o">-</span> <span class="n">xj</span> <span class="c"># odejmujemy, bo wzor na odleglosc kartezjanska to pierwiastek z (xi - xj)^2 + (yi-yj)^2 + (zi-zj)^2 </span>
-	<span class="n">yt</span> <span class="o">=</span> <span class="n">yi</span> <span class="o">-</span> <span class="n">yj</span>
-	<span class="n">zt</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">-</span> <span class="n">zj</span>
-	
-	<span class="n">distance</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">xt</span><span class="o">*</span><span class="n">xt</span> <span class="o">+</span> <span class="n">yt</span><span class="o">*</span><span class="n">yt</span> <span class="o">+</span> <span class="n">zt</span><span class="o">*</span><span class="n">zt</span><span class="p">)</span>
-	<span class="k">return</span> <span class="n">distance</span>
-
-<span class="c"># teraz test (zakomentuj to sobie pozniej - komentuje sie znakiem &quot;#&quot;), zobaczymy czy odleglosci miedzy atomami i-1,i to faktycznie 3.8 Angstroma:</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">pdb_model</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">):</span> <span class="c"># podzielilem przez trzy bo ta lista ma dlugosc 3N, a teraz i bedzie od 1...N (tak naprawde do 1...N-1)</span>
-    <span class="n">odleglosc</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">pdb_model</span><span class="p">)</span>
-    <span class="k">print</span> <span class="s">&quot;</span><span class="si">%5.2f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">odleglosc</span><span class="p">)</span> <span class="c"># mozna to tak wyswietlic, wtedy bedzie zaokraglalo do 2-go miejsca po przecinku. jak dasz samo print odleglosc to zaokragli do ok 15tego miejsca - brzydko wyglada</span>
-    <span class="c"># teraz jak to uruchomisz to wyswietli liste, gdzie bedzie mniej wiecej 3.8</span>
-    
-<span class="c"># no dobra, a teraz chcemy mape kontaktow</span>
-<span class="c"># tworzymy pusta macierz 2x2</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">zeros</span> <span class="c"># importujemy funkcje do tworzenia wygodnych macierzy 2D</span>
-
-<span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdb_model</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span> <span class="c"># zapiszemy dlugosc lancucha do zmiennej l, bo uzyjemy jej kilka razy, tak ze zeby nie trzeba bylo za kazdym razem tego liczyc</span>
-
-<span class="n">macierz</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="n">l</span><span class="p">,</span><span class="n">l</span><span class="p">))</span> <span class="c"># tu ma podwojne nawiasy, bo tak naprawde to (l,l) to jest krotka/tupla. tak jakby jedna zmienna. ona definiuje wymiar macierzy. funkcja nazywa sie zeros, bo tworzy macierz wypelniona zerami</span>
-
-<span class="n">cutoff</span> <span class="o">=</span> <span class="mf">6.0</span> <span class="c"># definiujemy cutoff kontaktu. jesli odleglosc &lt; cutoff, wtedy mamy kontakt</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
-	<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
-		<span class="n">d</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">pdb_model</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="n">cutoff</span><span class="p">:</span>
-			<span class="n">macierz</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-		<span class="c">#else:  tego nie trzeba, bo macierz od poczatku ma zera</span>
-
-<span class="c"># i teraz mozemy zapisac taka macierz:</span>
-<span class="n">pycabs</span><span class="o">.</span><span class="n">heat_map</span><span class="p">(</span><span class="n">macierz</span><span class="p">,</span><span class="s">&quot;Numer reszty&quot;</span><span class="p">,</span> <span class="s">&quot;Numer reszty&quot;</span><span class="p">,</span><span class="s">&quot;Mapa kontaktow&quot;</span><span class="p">,</span><span class="n">output_file</span><span class="o">=</span><span class="s">&quot;kontakty.png&quot;</span><span class="p">)</span>
-
-<span class="c"># powinien sie pojawic plik &quot;kontakty.png&quot; z obrazkiem</span>
-</pre></div>
-</div>
-<img alt="_images/kontakty.png" src="_images/kontakty.png" />
+<p>Download script: <a class="reference download internal" href="_downloads/de_novo.py"><tt class="xref download docutils literal"><span class="pre">de_novo.py</span></tt></a>.</p>
 </div>
 </div>
 

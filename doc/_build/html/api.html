@@ -160,6 +160,25 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 </dd></dl>
 
 <dl class="method">
+<dt id="pycabs.CABS.generateConstraintsOld">
+<tt class="descname">generateConstraintsOld</tt><big>(</big><em>exclude_residues=</em><span class="optional">[</span><span class="optional">]</span>, <em>other_constraints=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#pycabs.CABS.generateConstraintsOld" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate distance constraints using templates 3D models. Constraint will be a square well of size min(d), max(d) where d is mean distance among templates between Cα atoms (if constraint will be exceeded, there is penalty, scaled by weight.</p>
+<p>Weight is defined as a fraction of particular average distance among templates i.e. if pair of residues exist in 2 of 3 templates, weight will be 0.66. Using multiple sequence alignments it should provide stronger constraints on consistently aligned parts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exclude_residues</strong> (<em>list</em>) &#8211; indexes of residues without constrains</li>
+<li><strong>constrains</strong> (<em>other</em>) &#8211; user-defined constrains as list of tuples: (residue_i_index,residue_j_index,distance, constraint_strength)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pycabs.CABS.getEnergy">
 <tt class="descname">getEnergy</tt><big>(</big><big>)</big><a class="headerlink" href="#pycabs.CABS.getEnergy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read CABS energy values into list</p>
@@ -188,21 +207,59 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 </dd></dl>
 
 <dl class="method">
-<dt id="pycabs.CABS.modeling">
-<tt class="descname">modeling</tt><big>(</big><em>Ltemp=1.0</em>, <em>Htemp=2.0</em>, <em>cycles=1</em>, <em>phot=1</em>, <em>constraints_force=1.0</em><big>)</big><a class="headerlink" href="#pycabs.CABS.modeling" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start CABS modeling</p>
+<dt id="pycabs.CABS.loadSGCoordinates">
+<tt class="descname">loadSGCoordinates</tt><big>(</big><big>)</big><a class="headerlink" href="#pycabs.CABS.loadSGCoordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read center of mass of sidegroups from TRASG file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>Ltemp</strong> (<em>float</em>) &#8211; Low temperature for Replica Exchange Monte Carlo</li>
-<li><strong>Htemp</strong> (<em>float</em>) &#8211; High temperature for Replica Exchange Monte Carlo</li>
-<li><strong>cycles</strong> (<em>integer</em>) &#8211; number of Replica Exchange cycles</li>
-<li><strong>iphot</strong> (<em>integer</em>) &#8211; number of microcycles (inside REMC loop)</li>
-<li><strong>constraints_force</strong> (<em>float</em>) &#8211; Slope of constraints force potential</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">2D list of sidechains coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycabs.CABS.modeling">
+<tt class="descname">modeling</tt><big>(</big><em>Ltemp=1.0</em>, <em>Htemp=2.0</em>, <em>cycles=1</em>, <em>phot=1</em>, <em>constraints_force=1.0</em>, <em>dynamics=False</em><big>)</big><a class="headerlink" href="#pycabs.CABS.modeling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start CABS modeling</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param Ltemp:</th><td class="field-body">Low temperature for Replica Exchange Monte Carlo</td>
+</tr>
+<tr class="field-even field"><th class="field-name">type Ltemp:</th><td class="field-body">float</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param Htemp:</th><td class="field-body">High temperature for Replica Exchange Monte Carlo</td>
+</tr>
+<tr class="field-even field"><th class="field-name">type Htemp:</th><td class="field-body">float</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param cycles:</th><td class="field-body">number of Replica Exchange cycles</td>
+</tr>
+<tr class="field-even field"><th class="field-name">type cycles:</th><td class="field-body">integer</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param iphot:</th><td class="field-body">number of microcycles (inside REMC loop)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">type iphot:</th><td class="field-body">integer</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">param constraints_force:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">Slope of constraints force potential</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">type constraints_force:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dynamics</strong> &#8211; Use of special CABS version for dynamics pathway studies
+:type dynamics: boolean</td>
 </tr>
 </tbody>
 </table>
@@ -349,6 +406,27 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 </dd></dl>
 
 <dl class="function">
+<dt id="pycabs.contact_map">
+<tt class="descclassname">pycabs.</tt><tt class="descname">contact_map</tt><big>(</big><em>trajectory</em>, <em>contact_cutoff</em><big>)</big><a class="headerlink" href="#pycabs.contact_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute fraction of contacts in trajectory, where trajectory is 2D list of coordinates (trajectory[2][5] is the z-th coordinate of second atom of third model)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>trajectory</strong> &#8211; 2D trajectory of atoms (Cα, sidegroups center of mass, etc.)</li>
+<li><strong>contact_cutoff</strong> &#8211; cutoff defining contact</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">2D array of fraction of contacts (number of contacts divided by trajectory length) for each pair of residue.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pycabs.heat_map">
 <tt class="descclassname">pycabs.</tt><tt class="descname">heat_map</tt><big>(</big><em>data</em>, <em>x_label</em>, <em>y_label</em>, <em>colormap_label</em>, <em>output_file='heatmap.png'</em>, <em>cmap='Greys'</em><big>)</big><a class="headerlink" href="#pycabs.heat_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save heat map using pylab</p>
@@ -360,6 +438,43 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycabs.loadSGCoordinates">
+<tt class="descclassname">pycabs.</tt><tt class="descname">loadSGCoordinates</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pycabs.loadSGCoordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read center of mass of sidegroups from TRASG file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; path to the TRASG file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">2D list of sidechains coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycabs.loadTRAFCoordinates">
+<tt class="descclassname">pycabs.</tt><tt class="descname">loadTRAFCoordinates</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pycabs.loadTRAFCoordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read trajectory file into 2D list of coordinates</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">2D list of trajectory coordinates ( list[1][6] is sixth coordinate of second trajectory model = z coordinate of second atom of second model)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycabs.parseDSSPOutput">
+<tt class="descclassname">pycabs.</tt><tt class="descname">parseDSSPOutput</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pycabs.parseDSSPOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for extracting sequence and secondary structure assignments from the DSSP output. Useful for dynamics studies or other where we know protein structure.</p>
+<p>You can download DSSP files directly from PDB server: <a class="reference external" href="http://www.pdb.org/pdb/files/PDBID.dssp">http://www.pdb.org/pdb/files/PDBID.dssp</a></p>
 </dd></dl>
 
 <dl class="function">
