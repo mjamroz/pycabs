@@ -580,6 +580,9 @@ def parseDSSPOutput(filename):
         You can download DSSP files directly from PDB server: http://www.pdb.org/pdb/files/PDBID.dssp
     """
     h = open(filename,"r")
+    # translate cystein
+    from string import maketrans
+    tr = maketrans("abcdefghijklmnopqrstuvwxyz","CCCCCCCCCCCCCCCCCCCCCCCCCC")
     while 1:
         l=h.readline()
         if(l.startswith("  #  RESIDUE AA STRUCTURE")):
@@ -592,7 +595,7 @@ def parseDSSPOutput(filename):
             seq += line[13]
             ss += line[16].replace(" ","C").replace("B","C").replace("G","C").replace("I","C").replace("T","C").replace("S","C")
 		
-    return (seq,ss)
+    return (seq.translate(tr),ss)
     
 def parsePsipredOutput(psipred_output_fn):
 	"""
