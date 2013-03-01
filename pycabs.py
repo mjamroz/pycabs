@@ -356,7 +356,44 @@ class CABS(threading.Thread):
 				print "I/O error({0}): {1}".format(e.errno, e.strerror)
 				raise Errors("Maybe there is no TRAF file in current directory, did you run CABS.modeling method before?")		
 		return trajectory
-		
+	def sgToPdb(self,output_filename = "TRASG.pdb"):
+		"""
+			Convert TRASG (sidechains pseudoatoms) into multimodel pdb
+		"""
+
+		pdb_format = "ATOM   %4d  SG  %3s A%4d    %8.3f%8.3f%8.3f  1.00  0.00           C\n"
+		model_format = "MODEL%9d\n"
+
+
+		if path.isfile("TRASG"):
+			try:
+				outpdb = ""
+				traf = open("TRASG")
+				t = traf.readlines()
+				traf.close()
+				chain_len = int(t[0].split()[1])+1
+				for i in range(0,len(t),chain_len):
+					outpdb+=model_format %(i+1)
+					for j in range(i+1,i+chain_len):
+						coo = t[j].split()
+						x = float(coo[1])*0.61
+						y = float(coo[2])*0.61
+						z = float(coo[3])*0.61
+						seq = coo[4]
+						resid = int(coo[0])
+						outpdb+= pdb_format%(resid,seq,resid,x,y,z)
+					outpdb+="ENDMDL\n"
+				fw = open(output_filename,"w")
+				fw.write(outpdb)
+				fw.close()
+					
+			except IOError as e:
+				print "I/O error({0}): {1}".format(e.errno, e.strerror)
+				raise Errors("Maybe there is no TRASG file in current directory, did you run CABS.modeling method before?")		
+
+
+
+
 	def trafToPdb(self, output_filename = "TRAF.pdb"):
 		""" 
 			Convert TRAF CABS pseudotrajectory file format into multimodel pdb
@@ -505,6 +542,7 @@ class CABS(threading.Thread):
 		self._copyChains()
 		self._removeFFFiles()
 		self.trafToPdb()
+		self.sgToPdb()
 		
 		
 	def _createSEQ(self):
