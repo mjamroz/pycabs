@@ -27,8 +27,8 @@ def runCABS(temperature):
       a.modeling(Ltemp=temperature,Htemp=temperature, phot=100,cycles=100) # start modeling. phot is CABS microcycle, cycles variable is CABS macrocycle (how often write to the trajectory file)
       os.chdir(here)
 
-#pool = mp.Pool()  # it use all available CPUs on workstation. If user want to use only - for example two - CPUs, set pool = mp.Pool(2)
-#pool.map(runCABS,temperatures) # run simulations in parallel way, each simulation on each available CPU
+pool = mp.Pool()  # it use all available CPUs on workstation. If user want to use only - for example two - CPUs, set pool = mp.Pool(2)
+pool.map(runCABS,temperatures) # run simulations in parallel way, each simulation on each available CPU
 
 # postprocessing (comment out two lines above to avoid starting over simulations. If you want to only plot with other labels, etc. )
 

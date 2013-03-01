@@ -834,11 +834,11 @@ def contact_map(trajectory, contact_cutoff):
 				x_dist = model[3*i] - model[3*j]
 				y_dist = model[3*i+1] - model[3*j+1]
 				z_dist = model[3*i+2] - model[3*j+2]
-				d = x_dist*x_dist + y_dist*y_dist + z_dist*z_dist
-				if d<cutoff2:
+				d = sqrt(x_dist*x_dist + y_dist*y_dist + z_dist*z_dist)
+				if d<contact_cutoff:
 					contacts_tmp[i][j] += 1.0
 					contacts_tmp[j][i] += 1.0
-	contacts_tmp/=len(trajectory)
+	#contacts_tmp/=len(trajectory)
 	return contacts_tmp			
 				
 	
