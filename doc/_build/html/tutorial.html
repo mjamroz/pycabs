@@ -64,7 +64,6 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="kn">as</span> <span class="nn">mp</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-
 <span class="kn">import</span> <span class="nn">pycabs</span>
 
 
@@ -77,7 +76,7 @@
 	<span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="c"># since pycabs changing directories...</span>
 	<span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">name</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
 	<span class="n">a</span><span class="o">.</span><span class="n">createLatticeReplicas</span><span class="p">(</span><span class="n">replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-	<span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+	<span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">dynamics</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 	<span class="c">#remember to come back to `here` directory</span>
 	<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">here</span><span class="p">)</span>
 
@@ -126,7 +125,7 @@
 </pre></div>
 </div>
 <p>Download script: <a class="reference download internal" href="_downloads/heat_capacity.py"><tt class="xref download docutils literal"><span class="pre">heat_capacity.py</span></tt></a>.</p>
-<img alt="_images/cv.png" src="_images/cv.png" />
+<img alt="_images/cv.png" class="align-center" src="_images/cv.png" style="width: 800px;" />
 </div>
 <div class="section" id="study-folding-pathway-1-create-standard-deviation-and-mean-energy-plots-for-barnase">
 <h2>Study folding pathway: 1) create standard deviation and mean energy plots for Barnase<a class="headerlink" href="#study-folding-pathway-1-create-standard-deviation-and-mean-energy-plots-for-barnase" title="Permalink to this headline">¶</a></h2>
@@ -136,27 +135,29 @@
 <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">pylab</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">pycabs</span><span class="o">,</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span><span class="o">,</span> <span class="nn">multiprocessing</span> <span class="kn">as</span> <span class="nn">mp</span>
 <span class="c"># first of all, download pyCABS and set self.FF = &quot;&quot; to the FF directory with cabs files</span>
 <span class="c"># to compile CABS, use: g77 -O2 -ffloat-store -static -o cabs CABS.f </span>
+<span class="c"># to compile CABS_dynamics, use: g77 -O2 -ffloat-store -static -o cabs_dynamics CABS_dynamics.f </span>
 <span class="c"># to compile lattice model builder, use g77 -O2 -ffloat-store -static build_cabs61.f</span>
+<span class="c"># in FF directory.</span>
 
-<span class="n">sequence</span><span class="p">,</span> <span class="n">secstr</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">parseDSSPOutput</span><span class="p">(</span><span class="s">&quot;1bnr.dssp&quot;</span><span class="p">)</span> <span class="c"># define file with secondary structure definition of define sequence and secondary structure in sequence,secstr variables respectively</span>
+<span class="n">sequence</span><span class="p">,</span> <span class="n">secstr</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">parseDSSPOutput</span><span class="p">(</span><span class="s">&quot;/where/is/my/barnase/1bnr.dssp&quot;</span><span class="p">)</span> <span class="c"># define file with secondary structure definition of define sequence and secondary structure in sequence,secstr variables respectively</span>
 <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;barnase&quot;</span> <span class="c"># name for the project. Script will create subdirectories with this name as suffix</span>
-<span class="n">template</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;../1bnr.pdb&quot;</span><span class="p">]</span> <span class="c"># set path to the start structure (here - native structure). If user want to start from random chain, set template=[]. Note that path is relative to simulation directory</span>
+<span class="n">template</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;/where/is/my/barnase/1bnr.pdb&quot;</span><span class="p">]</span> <span class="c"># set path to the start structure (here - native structure). If user want to start from random chain, set template=[]. Note that path is relative to simulation directory</span>
 <span class="n">independent_runs</span><span class="o">=</span><span class="mi">5</span>  <span class="c"># set number of independent simulations for each temperature</span>
-<span class="n">temp_from</span> <span class="o">=</span> <span class="mf">1.0</span>     <span class="c"># define range of simulation temperatures, here is 1.0 - 2.8 with interval of 0.1</span>
-<span class="n">temp_to</span>  <span class="o">=</span> <span class="mf">2.8</span>
-<span class="n">temp_interval</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">temp_from</span> <span class="o">=</span> <span class="mf">1.5</span>     <span class="c"># define range of simulation temperatures, here is 1.0 - 2.8 with interval of 0.1</span>
+<span class="n">temp_to</span>  <span class="o">=</span> <span class="mf">3.8</span>
+<span class="n">temp_interval</span> <span class="o">=</span> <span class="mf">0.05</span>
 <span class="n">temperatures</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">temp_from</span><span class="p">,</span><span class="n">temp_to</span><span class="p">,</span><span class="n">temp_interval</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">runCABS</span><span class="p">(</span><span class="n">temperature</span><span class="p">):</span>
    <span class="k">global</span> <span class="n">name</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">independent_runs</span>
    <span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
-      <span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+      <span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%06.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
       <span class="n">dir_name</span><span class="o">=</span> <span class="n">name</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;_T&quot;</span><span class="o">+</span><span class="n">temp</span>  <span class="c"># create unique name for simulation dir</span>
       <span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span><span class="n">secstr</span><span class="p">,</span><span class="n">template</span><span class="p">,</span><span class="n">dir_name</span><span class="p">)</span> 
       <span class="n">a</span><span class="o">.</span><span class="n">rng_seed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10000</span><span class="p">)</span> <span class="c"># set random generator seed for each independent simulation</span>
       <span class="n">a</span><span class="o">.</span><span class="n">createLatticeReplicas</span><span class="p">(</span><span class="n">replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c"># create lattice model for CABS</span>
-      <span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="c"># start modeling. phot is CABS microcycle, cycles variable is CABS macrocycle (how often write to the trajectory file)</span>
+      <span class="n">a</span><span class="o">.</span><span class="n">modeling</span><span class="p">(</span><span class="n">Ltemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span><span class="n">Htemp</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">phot</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span><span class="n">cycles</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">dynamics</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c"># start modeling. phot is CABS microcycle, cycles variable is CABS macrocycle (how often write to the trajectory file)</span>
       <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">here</span><span class="p">)</span>
 
 <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">()</span>  <span class="c"># it use all available CPUs on workstation. If user want to use only - for example two - CPUs, set pool = mp.Pool(2)</span>
@@ -169,9 +170,9 @@
 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)):</span>
       <span class="n">t</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-      <span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+      <span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%06.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
       <span class="n">e_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="o">+</span><span class="s">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;_T&#39;</span><span class="o">+</span><span class="n">temp</span><span class="p">,</span><span class="s">&#39;ENERGY&#39;</span><span class="p">)</span> <span class="c"># path constructed in the same way like dir_name in runCABS definition above</span>
-      <span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">e_path</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> <span class="c"># read CABS energies for each trajectory model</span>
+      <span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">e_path</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)[</span><span class="mi">1000</span><span class="p">:]</span> <span class="c"># read CABS energies for each trajectory model (second half)</span>
       <span class="n">cv</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>  <span class="c"># calculate standard deviation (numpy std function) of energy, for each independent simulation</span>
       <span class="n">avgene</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span> <span class="c"># calculate mean (numpy mean function) of energy</span>
 
@@ -188,7 +189,7 @@
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
     <span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">cv</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">&#39;.&#39;</span><span class="p">)</span>
 <span class="n">pylab</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span><span class="n">mean_sigma</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">stddev_sigma</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s">&#39;o-&#39;</span><span class="p">)</span>
-<span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;stdE_barnase.png&quot;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;stdE_barnase.png&quot;</span><span class="p">,</span><span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 <span class="n">pylab</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 <span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r&#39;Mean energy&#39;</span> <span class="p">)</span>
@@ -197,9 +198,8 @@
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
     <span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">avgene</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">&#39;.&#39;</span><span class="p">)</span>
 <span class="n">pylab</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span><span class="n">mean_ene</span><span class="p">,</span><span class="n">yerr</span><span class="o">=</span><span class="n">stddev_ene</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s">&#39;o-&#39;</span><span class="p">)</span>
-<span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;meanE_barnase.png&quot;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;meanE_barnase.png&quot;</span><span class="p">,</span><span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 <span class="n">pylab</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
 
 
 <span class="c"># as a results user will get a lot of barnase* subdirectories, stdE_barnase.png and meanE_barnase.png files.</span>
@@ -209,8 +209,8 @@
 <p>Download script: <a class="reference download internal" href="_downloads/folding_pathway.py"><tt class="xref download docutils literal"><span class="pre">folding_pathway.py</span></tt></a>.
 Download necessary files: <a class="reference download internal" href="_downloads/1bnr.pdb"><tt class="xref download docutils literal"><span class="pre">1bnr.pdb</span></tt></a>, <a class="reference download internal" href="_downloads/1bnr.dssp"><tt class="xref download docutils literal"><span class="pre">1bnr.dssp</span></tt></a></p>
 <p>Results:</p>
-<img alt="_images/stdE_barnase.png" src="_images/stdE_barnase.png" />
-<img alt="_images/meanE_barnase.png" src="_images/meanE_barnase.png" />
+<img alt="_images/stdE_barnase.png" class="align-center" src="_images/stdE_barnase.png" style="width: 800px;" />
+<img alt="_images/meanE_barnase.png" class="align-center" src="_images/meanE_barnase.png" style="width: 800px;" />
 </div>
 <div class="section" id="study-folding-pathway-2-calculate-average-contact-map-over-trajectory-of-sidegroups-in-temperature-2-1">
 <h2>Study folding pathway: 2) calculate average contact map over trajectory of sidegroups in temperature 2.1<a class="headerlink" href="#study-folding-pathway-2-calculate-average-contact-map-over-trajectory-of-sidegroups-in-temperature-2-1" title="Permalink to this headline">¶</a></h2>
@@ -219,18 +219,15 @@ Download necessary files: <a class="reference download internal" href="_download
 <span class="kn">import</span> <span class="nn">pycabs</span><span class="o">,</span><span class="nn">os</span><span class="o">,</span><span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
 <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;barnase&quot;</span> <span class="c"># set project name same like in folding_pathway.py script</span>
-<span class="n">max_sd_temperature</span><span class="o">=</span><span class="mf">2.1</span> <span class="c"># read from the plot temperature for which maximum deviation of energy is observed</span>
+<span class="n">max_sd_temperature</span><span class="o">=</span><span class="mf">2.9</span> <span class="c"># read from the plot temperature for which maximum deviation of energy is observed</span>
 <span class="n">independent_runs</span><span class="o">=</span><span class="mi">5</span>     <span class="c"># set the same value like in folding_pathway.py script</span>
-
-
 
 <span class="c"># read trajectory of sidegroups (TRASG) from all independent simulations to the trajectory variable</span>
 <span class="n">trajectory</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">independent_runs</span><span class="p">):</span>
-	<span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%5.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">max_sd_temperature</span><span class="p">)</span>
+	<span class="n">temp</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%06.3f</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">max_sd_temperature</span><span class="p">)</span>
 	<span class="n">e_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="o">+</span><span class="s">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;_T&#39;</span><span class="o">+</span><span class="n">temp</span><span class="p">,</span><span class="s">&#39;TRASG&#39;</span><span class="p">)</span>
-	<span class="n">trajectory</span> <span class="o">+=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">loadSGCoordinates</span><span class="p">(</span><span class="n">e_path</span><span class="p">)</span>
-
+	<span class="n">trajectory</span> <span class="o">+=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">loadSGCoordinates</span><span class="p">(</span><span class="n">e_path</span><span class="p">)[</span><span class="mi">1000</span><span class="p">:]</span> <span class="c"># second half of sidechains trajectory</span>
 
 <span class="n">contact</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">contact_map</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span><span class="mf">7.0</span><span class="p">)</span> <span class="c"># calculate averaged contact map over trajectories. Cutoff set to 7.0A.</span>
 
@@ -243,10 +240,10 @@ Download necessary files: <a class="reference download internal" href="_download
 <span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">contact</span><span class="p">))</span>
 <span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">contact</span><span class="p">))</span>
 <span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Residue index&quot;</span><span class="p">)</span>
-<span class="n">pcolor</span><span class="p">(</span><span class="n">contact</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">gnuplot2_r</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span> <span class="c"># vmax is range of colorbar. Here is set to 0.8, which gave white color for all values greater than 0.8</span>
+<span class="n">pcolor</span><span class="p">(</span><span class="n">contact</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">gnuplot2_r</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span> <span class="c"># vmax is range of colorbar. Here is set to 0.8, which gave white color for all values greater than 0.8</span>
 <span class="n">cb</span> <span class="o">=</span> <span class="n">colorbar</span><span class="p">()</span>
 <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&quot;Fraction of contacts&quot;</span><span class="p">)</span>
-<span class="n">savefig</span><span class="p">(</span><span class="s">&quot;heatmap&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">max_sd_temperature</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;.png&quot;</span><span class="p">)</span>
+<span class="n">savefig</span><span class="p">(</span><span class="s">&quot;heatmap&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">max_sd_temperature</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;.png&quot;</span><span class="p">,</span><span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
 
 <span class="c"># optionally, write contact map values into the text file formatted for GNUplot</span>
 <span class="n">fw</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;contact_map.dat&quot;</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
@@ -280,7 +277,7 @@ Download necessary files: <a class="reference download internal" href="_download
 </div>
 <p>Download script: <a class="reference download internal" href="_downloads/contact_map.py"><tt class="xref download docutils literal"><span class="pre">contact_map.py</span></tt></a>.</p>
 <p>Results:</p>
-<img alt="_images/heatmap2.1.png" src="_images/heatmap2.1.png" />
+<img alt="_images/heatmap2.9.png" class="align-center" src="_images/heatmap2.9.png" style="width: 800px;" />
 <p>Optionally, GNUplot script for plotting contact_map.dat file generated by contact_map.py script:</p>
 <div class="highlight-python"><pre>set terminal unknown
 plot 'contact_map.dat' using 1:2:3

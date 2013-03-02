@@ -52,7 +52,7 @@
             
   <div class="section" id="module-pycabs">
 <span id="pycabs-api"></span><h1>pyCABS API<a class="headerlink" href="#module-pycabs" title="Permalink to this headline">¶</a></h1>
-<p>pyCABS Copyright (C) 2012 Michal Jamroz &lt;<a class="reference external" href="mailto:jamroz&#37;&#52;&#48;chem&#46;uw&#46;edu&#46;pl">jamroz<span>&#64;</span>chem<span>&#46;</span>uw<span>&#46;</span>edu<span>&#46;</span>pl</a>&gt;</p>
+<p>pyCABS Copyright (C) 2013 Michal Jamroz &lt;<a class="reference external" href="mailto:jamroz&#37;&#52;&#48;chem&#46;uw&#46;edu&#46;pl">jamroz<span>&#64;</span>chem<span>&#46;</span>uw<span>&#46;</span>edu<span>&#46;</span>pl</a>&gt;</p>
 <p>This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -67,6 +67,10 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <dt id="pycabs.CABS">
 <em class="property">class </em><tt class="descclassname">pycabs.</tt><tt class="descname">CABS</tt><big>(</big><em>sequence</em>, <em>secondary_structure</em>, <em>templates_filenames</em>, <em>project_name</em><big>)</big><a class="headerlink" href="#pycabs.CABS" title="Permalink to this definition">¶</a></dt>
 <dd><p>CABS main class.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Manually update self.FF variable here (path to the FF directory with CABS files)</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -194,7 +198,7 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 
 <dl class="method">
 <dt id="pycabs.CABS.modeling">
-<tt class="descname">modeling</tt><big>(</big><em>Ltemp=1.0</em>, <em>Htemp=2.0</em>, <em>cycles=1</em>, <em>phot=1</em>, <em>constraints_force=1.0</em>, <em>dynamics=False</em><big>)</big><a class="headerlink" href="#pycabs.CABS.modeling" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">modeling</tt><big>(</big><em>Ltemp=1.0</em>, <em>Htemp=2.0</em>, <em>cycles=100</em>, <em>phot=300</em>, <em>constraints_force=1.0</em>, <em>dynamics=False</em><big>)</big><a class="headerlink" href="#pycabs.CABS.modeling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start CABS modeling</p>
 <blockquote>
 <div><table class="docutils field-list" frame="void" rules="none">
@@ -252,7 +256,7 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>model_idx</strong> &#8211; index of model in CABS trajectory</li>
+<li><strong>model_idx</strong> &#8211; index of model in the CABS trajectory</li>
 <li><strong>filename</strong> &#8211; name of the output file. If empty, it saves to model_index.pdb</li>
 </ul>
 </td>
@@ -264,13 +268,13 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <dl class="method">
 <dt id="pycabs.CABS.sgToPdb">
 <tt class="descname">sgToPdb</tt><big>(</big><em>output_filename='TRASG.pdb'</em><big>)</big><a class="headerlink" href="#pycabs.CABS.sgToPdb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert TRASG (sidechains pseudoatoms) into multimodel pdb</p>
+<dd><p>Convert TRASG (sidechains pseudoatoms) into multimodel pdb. Default filename TRASG.pdb</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pycabs.CABS.trafToPdb">
 <tt class="descname">trafToPdb</tt><big>(</big><em>output_filename='TRAF.pdb'</em><big>)</big><a class="headerlink" href="#pycabs.CABS.trafToPdb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert TRAF CABS pseudotrajectory file format into multimodel pdb</p>
+<dd><p>Convert TRAF CABS pseudotrajectory file format into multimodel pdb (default filename TRAF.pdb)</p>
 </dd></dl>
 
 </dd></dl>
@@ -386,7 +390,7 @@ Before use, download CatDCD from <a class="reference external" href="http://www.
 <dl class="function">
 <dt id="pycabs.contact_map">
 <tt class="descclassname">pycabs.</tt><tt class="descname">contact_map</tt><big>(</big><em>trajectory</em>, <em>contact_cutoff</em><big>)</big><a class="headerlink" href="#pycabs.contact_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute fraction of contacts in trajectory, where trajectory is 2D list of coordinates (trajectory[2][5] is the z-th coordinate of second atom of third model)</p>
+<dd><p>Compute fraction of contacts in a trajectory, where trajectory is 2D list of coordinates (trajectory[2][5] is the z-th coordinate of second atom of third model)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

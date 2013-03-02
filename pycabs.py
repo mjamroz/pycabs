@@ -32,8 +32,8 @@ class CABS(threading.Thread):
 	"""
 	
 	CABS main class.
-	.. warning:: 
-	Manually update self.FF variable here (path to the FF directory with CABS files)
+		
+	.. warning:: Manually update self.FF variable here (path to the FF directory with CABS files)
 	
 	:param sequence: one line sequence of the target protein
 	:type sequence: string

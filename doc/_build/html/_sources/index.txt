@@ -10,8 +10,6 @@ Download CABS:
 
 :download:`pycabs.tar.gz <../pycabs.tar.gz>` (or github repository: `pycabs <https://github.com/mjamroz/pycabs>`_)
 
-:download:`CABS.tar.gz <../CABS.tar.gz>` 
-
 
 Contents:
 
