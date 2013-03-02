@@ -3,18 +3,15 @@
 import pycabs,os,numpy as np
 
 name = "barnase" # set project name same like in folding_pathway.py script
-max_sd_temperature=2.1 # read from the plot temperature for which maximum deviation of energy is observed
+max_sd_temperature=2.9 # read from the plot temperature for which maximum deviation of energy is observed
 independent_runs=5     # set the same value like in folding_pathway.py script
-
-
 
 # read trajectory of sidegroups (TRASG) from all independent simulations to the trajectory variable
 trajectory = []
 for j in range(independent_runs):
-	temp = "%5.3f" %(max_sd_temperature)
+	temp = "%06.3f" %(max_sd_temperature)
 	e_path = os.path.join(name+'_'+str(j)+'_T'+temp,'TRASG')
-	trajectory += pycabs.loadSGCoordinates(e_path)
-
+	trajectory += pycabs.loadSGCoordinates(e_path)[1000:] # second half of sidechains trajectory
 
 contact = pycabs.contact_map(trajectory,7.0) # calculate averaged contact map over trajectories. Cutoff set to 7.0A.
 
@@ -27,10 +24,10 @@ xlabel("Residue index")
 xlim(0, len(contact))
 ylim(0, len(contact))
 ylabel("Residue index")
-pcolor(contact, cmap=cm.gnuplot2_r,vmax=0.8) # vmax is range of colorbar. Here is set to 0.8, which gave white color for all values greater than 0.8
+pcolor(contact, cmap=cm.gnuplot2_r,vmax=0.6) # vmax is range of colorbar. Here is set to 0.8, which gave white color for all values greater than 0.8
 cb = colorbar()
 cb.set_label("Fraction of contacts")
-savefig("heatmap"+str(max_sd_temperature)+".png")
+savefig("heatmap"+str(max_sd_temperature)+".png",dpi=600)
 
 # optionally, write contact map values into the text file formatted for GNUplot
 fw = open("contact_map.dat","w")

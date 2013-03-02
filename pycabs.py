@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-pyCABS Copyright (C) 2012 Michal Jamroz <jamroz@chem.uw.edu.pl>
+pyCABS Copyright (C) 2013 Michal Jamroz <jamroz@chem.uw.edu.pl>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ class CABS(threading.Thread):
 	"""
 	
 	CABS main class.
+	.. warning:: 
+	Manually update self.FF variable here (path to the FF directory with CABS files)
 	
 	:param sequence: one line sequence of the target protein
 	:type sequence: string
@@ -291,7 +293,7 @@ class CABS(threading.Thread):
 		"""
 			Save trajectory model into pdb file
 			
-			:param model_idx: index of model in CABS trajectory
+			:param model_idx: index of model in the CABS trajectory
 			:param filename: name of the output file. If empty, it saves to model_index.pdb
 		"""
 		if path.isfile("TRAF"):
@@ -358,7 +360,7 @@ class CABS(threading.Thread):
 		return trajectory
 	def sgToPdb(self,output_filename = "TRASG.pdb"):
 		"""
-			Convert TRASG (sidechains pseudoatoms) into multimodel pdb
+			Convert TRASG (sidechains pseudoatoms) into multimodel pdb. Default filename TRASG.pdb
 		"""
 
 		pdb_format = "ATOM   %4d  SG  %3s A%4d    %8.3f%8.3f%8.3f  1.00  0.00           C\n"
@@ -396,7 +398,7 @@ class CABS(threading.Thread):
 
 	def trafToPdb(self, output_filename = "TRAF.pdb"):
 		""" 
-			Convert TRAF CABS pseudotrajectory file format into multimodel pdb
+			Convert TRAF CABS pseudotrajectory file format into multimodel pdb (default filename TRAF.pdb)
 		"""
 		
 		pdb_format = "ATOM   %4d  CA  %3s A%4d    %8.3f%8.3f%8.3f  1.00  0.00           C\n"
@@ -482,11 +484,11 @@ class CABS(threading.Thread):
 	def _copyChains(self):
 		copyfile("FCHAINS","FCHAINS_old")
 		rename("ACHAINS_NEW","FCHAINS")
-	def setParameters(self,	 Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
-		pass
+#	def setParameters(self,	 Ltemp=1.0,Htemp=2.0,cycles=20,phot=10,constraints_force=1.0):
+#		pass
 		
 		
-	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=1,phot=1,constraints_force=1.0,dynamics=False):
+	def modeling(self, Ltemp=1.0,Htemp=2.0,cycles=100,phot=300,constraints_force=1.0,dynamics=False):
 		"""
 			Start CABS modeling
 			
@@ -855,7 +857,7 @@ def saveMedoids(clusters,cabs):
 	return
 def contact_map(trajectory, contact_cutoff):
 	"""
-		Compute fraction of contacts in trajectory, where trajectory is 2D list of coordinates (trajectory[2][5] is the z-th coordinate of second atom of third model)
+		Compute fraction of contacts in a trajectory, where trajectory is 2D list of coordinates (trajectory[2][5] is the z-th coordinate of second atom of third model)
 
 		:param trajectory: 2D trajectory of atoms (Cα, sidegroups center of mass, etc.)
 		:param contact_cutoff: cutoff defining contact
@@ -876,7 +878,7 @@ def contact_map(trajectory, contact_cutoff):
 				if d<contact_cutoff:
 					contacts_tmp[i][j] += 1.0
 					contacts_tmp[j][i] += 1.0
-	#contacts_tmp/=len(trajectory)
+	contacts_tmp/=len(trajectory)
 	return contacts_tmp			
 				
 	
@@ -1181,10 +1183,11 @@ if __name__ == "__main__":
 	templates = ["/home/mjamroz/pycabs/playground/2pcy_CA.pdb"]#,"/home/mjamroz/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
 	a = CABS(seq,ss,templates,working_dir) # initialize CABS, create required files
 	a.generateConstraintsOld() 
-	#a.createLatticeReplicas() # create start models from templates
-	#a.modeling(Htemp=3.0,cycles=1,phot=1) # start modeling with default INP values and create TRAF.pdb when done
-	#tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
+	a.createLatticeReplicas() # create start models from templates
+	a.modeling(Htemp=3.0,cycles=1,phot=1) # start modeling with default INP values and create TRAF.pdb when done
+	tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
 	
+	# for clustering of results, install Pycluster (or cluster TRAF file by our software ClusCo (biocomp.chem.uw.edu.pl/clusco)
 	clu = '''
 	from Pycluster import *
 	from numpy import array

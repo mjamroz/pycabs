@@ -2,7 +2,6 @@
 import multiprocessing as mp
 import os
 import numpy as np
-
 import pycabs
 
 
@@ -15,7 +14,7 @@ def runCABS(temperature):
 	here = os.getcwd() # since pycabs changing directories...
 	a = pycabs.CABS(sequence,secstr,template,name+"_"+str(temperature))
 	a.createLatticeReplicas(replicas=1)
-	a.modeling(Ltemp=temperature,Htemp=temperature, phot=10,cycles=100)
+	a.modeling(Ltemp=temperature,Htemp=temperature, phot=300,cycles=100,dynamics=True)
 	#remember to come back to `here` directory
 	os.chdir(here)
 
