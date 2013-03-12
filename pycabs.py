@@ -54,10 +54,11 @@ class CABS(threading.Thread):
 			raise Errors("Directory "+project_name+" exists. Choose another project name")
 		self.sequence = sequence
 		self.seqlen = len(sequence)
-		
+	        self.denovo = False	
 		self.ss = secondary_structure
 		if len(templates_filenames)==0: # if 0 templates = DE NOVO 
 			templates_filenames.append(self.__getInitForDeNovo())
+			self.denovo = True
 			print templates_filenames
 			
 		self.templates_fn = templates_filenames
@@ -80,12 +81,13 @@ class CABS(threading.Thread):
 		
 		self._createSEQ() # we always need SEQ file so I put it here
 	def __getInitForDeNovo(self):
-		
+		import uuid
+		start_fname=str(uuid.uuid4())	
 		f_chain =open(self.FF+"/extended.pdb").readlines()
-		fw = open("start.pdb","w")
+		fw = open(start_fname,"w")
 		fw.write("".join(f_chain[:self.seqlen]))
 		fw.close()
-		return path.abspath("start.pdb")
+		return path.abspath(start_fname)
 		
 		
 	def createLatticeReplicas(self,start_structures_fn=[],replicas=20):
@@ -156,6 +158,9 @@ class CABS(threading.Thread):
 			counter +=1
 		fchains.close()	
 		self.replicas = replicas
+		if self.denovo:
+			from os import remove
+			remove(temp_filenames[0])	
 		print Info("FCHAINS file created")
 
 	def generateConstraints(self,exclude_residues=[],other_constraints=[]): # TODO - update self.constraints
