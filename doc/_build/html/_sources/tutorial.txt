@@ -39,7 +39,7 @@ Results:
    :align: center
 
 
-Study folding pathway: 2) calculate average contact map over trajectory of sidegroups in temperature 2.1
+Study folding pathway: 2) calculate average contact map over trajectory of sidegroups in temperature 2.9
 =========================================================================================================
 
 .. literalinclude:: ../examples/folding_pathway/contact_map.py
