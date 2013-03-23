@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import pycabs
 from Pycluster import *
-from numpy import array
+from numpy import array,zeros
 
-data =  parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
+data =  pycabs.parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
 working_dir = "de_novo" # name of project 
 templates = [] # deNOVO
 a = pycabs.CABS(data[0],data[1],templates,working_dir) # initialize CABS, create required files
@@ -21,7 +21,7 @@ for i in range(len(tr)):
 		distances[i][j] = distances[j][i] = rms
 		
 #save RMSD array as heat map
-heat_map(distances,"Protein model","Protein model","RMSD")		
+pycabs.heat_map(distances,"Protein model","Protein model","RMSD")		
 
 
 # clustering by K-medoids method (with 5 clusters)
