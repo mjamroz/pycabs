@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from tempfile import mkdtemp
 from re import search,sub,compile,match
 from os import getcwd,chdir,path,mkdir,stat,remove,rename
-from numpy import fromfile,reshape,linalg,mean,std,zeros,unique,indices
+from numpy import fromfile,reshape,linalg,mean,std,zeros,unique,indices,array
 from subprocess import Popen,PIPE
 from shutil import copyfile
 from math import sqrt,cos,sin,atan2
