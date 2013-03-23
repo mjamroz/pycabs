@@ -22,7 +22,7 @@ from tempfile import mkdtemp
 from re import search,sub,compile,match
 from os import getcwd,chdir,path,mkdir,stat,remove,rename
 from numpy import fromfile,reshape,linalg,mean,std,zeros,unique,indices,array
-from subprocess import Popen,PIPE
+from subprocess import Popen,PIPE,call
 from shutil import copyfile
 from math import sqrt,cos,sin,atan2
 import threading
@@ -47,7 +47,7 @@ class CABS(threading.Thread):
 	"""
 
 	def __init__(self,sequence,secondary_structure,templates_filenames, project_name):
-		self.FF = "/home/mjamroz/pycabs/FF" # TODO !!!
+		self.FF = "/home/user/pycabs/FF" # TODO !!!
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
 		if path.isdir(project_name):
@@ -130,8 +130,8 @@ class CABS(threading.Thread):
 				f.close()
 				chdir(path.join(self.cwd,self.pname,tempdir))
 				arg = path.join(self.FF,"a.out")+ " %d %d %d" % (self.seqlen,l,i)
-				chainstart = Popen([arg], shell=True, stdout=PIPE)
-				chainstart.communicate()
+				chainstart = call(arg,shell=True)#, stdout=PIPE)
+				#chainstart.communicate()
 				
 				chdir(path.join(self.cwd,self.pname))
 				i += 1
