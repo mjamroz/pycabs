@@ -8,7 +8,7 @@ Welcome to CABS's webpage
 
 Download CABS:
 
-:download:`pycabs.tar.gz <../pycabs.tar.gz>` (or github repository: `pycabs <https://github.com/mjamroz/pycabs>`_)
+Download pyCABS from github: git clone git://github.com/mjamroz/pycabs.git
 
 
 Contents:

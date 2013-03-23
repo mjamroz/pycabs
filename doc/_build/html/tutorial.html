@@ -393,9 +393,9 @@ plot 'contact_map.dat' with image
 <div class="highlight-python"><div class="highlight"><pre><span class="c">#!/usr/bin/env python</span>
 <span class="kn">import</span> <span class="nn">pycabs</span>
 <span class="kn">from</span> <span class="nn">Pycluster</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span><span class="p">,</span><span class="n">zeros</span>
 
-<span class="n">data</span> <span class="o">=</span>  <span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/user/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> <span class="c"># read PORTER (or PsiPred) secondary structure prediction</span>
+<span class="n">data</span> <span class="o">=</span>  <span class="n">pycabs</span><span class="o">.</span><span class="n">parsePorterOutput</span><span class="p">(</span><span class="s">&quot;/home/user/pycabs/proba/playground/porter.ss&quot;</span><span class="p">)</span> <span class="c"># read PORTER (or PsiPred) secondary structure prediction</span>
 <span class="n">working_dir</span> <span class="o">=</span> <span class="s">&quot;de_novo&quot;</span> <span class="c"># name of project </span>
 <span class="n">templates</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># deNOVO</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">pycabs</span><span class="o">.</span><span class="n">CABS</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">templates</span><span class="p">,</span><span class="n">working_dir</span><span class="p">)</span> <span class="c"># initialize CABS, create required files</span>
@@ -413,7 +413,7 @@ plot 'contact_map.dat' with image
 		<span class="n">distances</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rms</span>
 		
 <span class="c">#save RMSD array as heat map</span>
-<span class="n">heat_map</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span><span class="s">&quot;Protein model&quot;</span><span class="p">,</span><span class="s">&quot;Protein model&quot;</span><span class="p">,</span><span class="s">&quot;RMSD&quot;</span><span class="p">)</span>		
+<span class="n">pycabs</span><span class="o">.</span><span class="n">heat_map</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span><span class="s">&quot;Protein model&quot;</span><span class="p">,</span><span class="s">&quot;Protein model&quot;</span><span class="p">,</span><span class="s">&quot;RMSD&quot;</span><span class="p">)</span>		
 
 
 <span class="c"># clustering by K-medoids method (with 5 clusters)</span>
