@@ -2,13 +2,13 @@
 import pycabs
 from Pycluster import *
 from numpy import array,zeros
-
+data =  pycabs.parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") # read PORTER
 working_dir = "de_novo" # name of project 
 templates = [] # deNOVO
-a = pycabs.CABS('AAAAAAAAAA','HHHHHHHHHH',templates,working_dir) # initialize CABS, create required files
+a = pycabs.CABS(data[0],data[1],templates,working_dir) # initialize CABS, create required files
 # DENOVO a.generateConstraints() 
 a.createLatticeReplicas() # create start models from templates
-a.modeling(Htemp=3.0,cycles=2,phot=1) # start modeling with default INP values and create TRAF.pdb when done
+a.modeling(Htemp=3.0,cycles=20,phot=100) # start modeling with default INP values and create TRAF.pdb when done
 tr = a.getTraCoordinates() # load TRAF into memory and calculate RMSD all-vs-all : 
 
 
