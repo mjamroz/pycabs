@@ -47,7 +47,7 @@ class CABS(threading.Thread):
 	"""
 
 	def __init__(self,sequence,secondary_structure,templates_filenames, project_name):
-		self.FF = "/home/user/pycabs/FF" # TODO !!!
+		self.FF = "/home/hydek/pycabs/FF" # TODO !!!
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
 		if path.isdir(project_name):
