@@ -26,7 +26,7 @@ from subprocess import Popen,PIPE,call
 from shutil import copyfile
 from math import sqrt,cos,sin,atan2
 import threading
-import time
+import time,sys
 
 class CABS(threading.Thread):
 	"""
@@ -47,7 +47,7 @@ class CABS(threading.Thread):
 	"""
 
 	def __init__(self,sequence,secondary_structure,templates_filenames, project_name):
-		self.FF = "/home/user/pycabs/FF" # TODO !!!
+		self.FF = path.abspath(path.join(path.dirname(sys.modules[self.__class__.__module__].__file__),"FF"))
 		if len(sequence)!=len(secondary_structure):
 			raise Errors("Different lengths of sequence and secondary structure")
 		if path.isdir(project_name):
@@ -1185,7 +1185,9 @@ if __name__ == "__main__":
 	seq = "IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEEDLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN"
 	ss = "CEEEECCCCCCCEEECCEEEECCCCEEEEEECCCCCCEEEECCCCCCCCCCCCCCCCCCCCCCCCCCCEEEEECCCCEEEEEECCCCCCCCCEEEEEEC"
 	working_dir = "modelowanie2pcy" # name of project 
-	templates = ["/home/mjamroz/pycabs/playground/2pcy_CA.pdb"]#,"/home/mjamroz/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
+	script_dir_ex = path.abspath(path.join(path.dirname(__file__),"playground"))
+	print script_dir_ex
+	templates = [script_dir_ex+"/2pcy_CA.pdb"]#,"/home/mjamroz/pycabs/playground/2pcy_CA2.pdb"] # set path to templates 
 	a = CABS(seq,ss,templates,working_dir) # initialize CABS, create required files
 	a.generateConstraintsOld() 
 	a.createLatticeReplicas() # create start models from templates
