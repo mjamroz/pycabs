@@ -689,6 +689,8 @@ def parsePsipredOutput(psipred_output_fn):
     try:
         f = open(psipred_output_fn)
         for line in f.readlines():
+            if len(line)<4 or "#" in line:
+                continue
             d = line.split()
             if d[2] in coil: d[2] = "C"
             seq = seq + d[1]
