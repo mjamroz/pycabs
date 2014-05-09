@@ -186,7 +186,7 @@ class CABS(threading.Thread):
             remove(temp_filenames[0])   
         print Info("FCHAINS file created")
 
-    def generateConstraints(self,exclude_residues=[],other_constraints=[]): # TODO - update self.constraints
+    def generateConstraints(self,exclude_residues=[],other_constraints=[],bfactor_cutoff=999.0): # TODO - update self.constraints
         """
             Calculate distance constraints using templates 3D models. Constraint will be a square well of size d-std_dev-1.0,d+std_dev+1.0, where d is mean distance among templates between Cα atoms (if constraint will be exceeded, there is penalty, scaled by weight.
             
@@ -200,7 +200,7 @@ class CABS(threading.Thread):
         """
         t = [] # here is list with templates structures
         for template_path in self.templates_fn:
-            model = Template(template_path)
+            model = Template(template_path, bfactor_cutoff=bfactor_cutoff)
             t.append(model)
         max_resid = -1
         for temp in t:
@@ -231,7 +231,9 @@ class CABS(threading.Thread):
                     d_mean = mean(distances)
                     d_stddev = std(distances)
                     d_weight = 1.0*len(distances)/len(t)
-                    
+                    if d_stddev>8.0:
+                        continue
+
                     d_min = d_mean-d_stddev-1.0
                     if d_min<3.8: d_min = 3.8
                     d_max = d_mean+d_stddev+1.0
@@ -1152,21 +1154,28 @@ class Template:
         
         :param filename: path to file with template (in PDB format)
         :return: Nx3 list of coordinates
+
+        :param bfactof_cutoff: skip atoms with Bfactor greater than this value (default 999.0)
     """
 
-    def __init__(self,filename):
+    def __init__(self,filename,bfactor_cutoff=999.0):
         
         self.hashmap={}
-        atm = compile(r"^ATOM.{9}CA.{7}(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
+        atm = compile(r"^ATOM.{9}CA.{7}(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8}).{6}(?P<b>.{6})")
         f = open(filename)
         coordinateslist = []
         i=0
         for line in f.readlines():
             data = atm.match(line) # parse pdb file
             if data:
+                bfactor =  float(data.group('b'))
+                if bfactor>bfactor_cutoff:
+                    continue
+
+
                 self.hashmap[int(data.group('resid'))] = i # remember residues indexes
                 i+=1
-                for v in data.groups()[1:]: coordinateslist.append(float(v))
+                for v in data.groups()[1:-1]: coordinateslist.append(float(v))
         f.close()
         self.coordinates = reshape(coordinateslist,(-1,3)) # magic, reshape list of xyzxyz into Nx3 array
         coordinateslist = []
