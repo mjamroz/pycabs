@@ -201,7 +201,11 @@ class CABS(threading.Thread):
         t = [] # here is list with templates structures
         for template_path in self.templates_fn:
             model = Template(template_path, bfactor_cutoff=bfactor_cutoff)
-            t.append(model)
+            if model.getLength()>0:
+                t.append(model)
+            else:
+                print "Constraints from "+template_path+" ommited since any atom with bfactor>"+str(bfactor_cutoff)
+
         max_resid = -1
         for temp in t:
             if temp.getLastResidueIndex()>max_resid:
@@ -1159,7 +1163,6 @@ class Template:
     """
 
     def __init__(self,filename,bfactor_cutoff=999.0):
-        
         self.hashmap={}
         atm = compile(r"^ATOM.{9}CA.{7}(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8}).{6}(?P<b>.{6})")
         f = open(filename)
@@ -1189,6 +1192,8 @@ class Template:
             return self.coordinates[idx]
     def getLastResidueIndex(self):
         return self.residues[-1]
+    def getLength(self):
+        return len(self.residues)
     def distance(self,idx_i,idx_j):
         """
             :param idx_i: residue index (as in target sequence numbering)
