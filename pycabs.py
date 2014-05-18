@@ -204,7 +204,7 @@ class CABS(threading.Thread):
             if model.getLength()>0:
                 t.append(model)
             else:
-                print "Constraints from "+template_path+" ommited since any atom with bfactor>"+str(bfactor_cutoff)
+                print "Constraints from "+template_path+" ommited since any atom with bfactor<"+str(bfactor_cutoff)
 
         max_resid = -1
         for temp in t:
