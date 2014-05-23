@@ -250,7 +250,14 @@ class CABS(threading.Thread):
             f.write( "%4d %5d %5d %6.2f %6.2f %5.2f\n"%(c[0],c[1],iter,round(c[2],2),round(c[3],2),round(c[4],2)))
             iter += 1
         f.close()
-                        
+    def addCustomConstraints(custom_constraints):
+        f = open("constraints.dat","w")
+        iter = 1
+        for c in custom_constraints:
+            f.write( "%4d %5d %5d %6.2f %6.2f %5.2f\n"%(c[0],c[1],iter,round(c[2],2),round(c[3],2),round(c[4],2)))
+            iter += 1
+        f.close()
+
     def generateConstraintsOld(self,exclude_residues=[],other_constraints=[]):          
         """
             Calculate distance constraints using templates 3D models. Constraint will be a square well of size min(d), max(d) where d is mean distance among templates between Cα atoms (if constraint will be exceeded, there is penalty, scaled by weight.
@@ -1220,30 +1227,11 @@ class Template:
 # tests
 if __name__ == "__main__":
     #data =  parsePorterOutput("/home/user/pycabs/proba/playground/porter.ss") # read PORTER (or PsiPred) secondary structure prediction
-    seq = "IDVLLGA"
-    ss = "CEEEECC"
+    seq = "IDVLLGADDGSLAFVPSEFSISPGEKIVFKNNAGFPHNIVFDEDSIPSGVDASKISMSEEDLLNAKGETFEVALSNKGEYSFYCSPHQGAGMVGKVTVN"
+    ss =  "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCEEEECC"
     working_dir = "modelowanie" # name of project 
     script_dir_ex = path.abspath(path.join(path.dirname(__file__),"playground"))
-    print script_dir_ex
-    a = CABS(seq,ss,[],working_dir) # initialize CABS, create required files
-    a.setFcentro(666)
+    a = CABS(seq,ss,["/home/mjamroz/WORK/tm/pycabs/playground/2pcy_CA.pdb"],working_dir) # initialize CABS, create required files
     a.createLatticeReplicas() # create start models from templates
+    a.generateConstraints(exclude_residues=range(1,1000), other_constraints = [(1,10,4,8,1)])
     a.modeling(Htemp=3.0,cycles=1,phot=1) # start modeling with default INP values and create TRAF.pdb when done
-    
-    # for clustering of results, install Pycluster (or cluster TRAF file by our software ClusCo (biocomp.chem.uw.edu.pl/clusco)
-    clu = '''
-    from Pycluster import *
-    from numpy import array
-    distances = zeros((len(tr),len(tr)))
-    for i in range(len(tr)):
-        for j in range(i,len(tr)):
-            rms = rmsd(tr[i],tr[j])
-            distances[i][j] = distances[j][i] = rms
-    heat_map(distances,"Protein model","Protein model","RMSD")      
-    
-    clusterid,error,nfound = kmedoids(distances,nclusters=5,npass=15,initialid=None)
-    print clusterid,error
-    clusterid,error,nfound = kcluster(distances,nclusters=5,npass=15)
-    saveMedoids(clusterid,a)
-    print clusterid,error
-        '''
