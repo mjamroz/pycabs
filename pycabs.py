@@ -253,6 +253,7 @@ class CABS(threading.Thread):
     def addCustomConstraints(self,custom_constraints):
         f = open("constraints.dat","w")
         iter = 1
+        self.constraints = len(custom_constraints) 
         for c in custom_constraints:
             f.write( "%4d %5d %5d %6.2f %6.2f %5.2f\n"%(c[0],c[1],iter,round(c[2],2),round(c[3],2),round(c[4],2)))
             iter += 1
