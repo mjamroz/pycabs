@@ -250,7 +250,7 @@ class CABS(threading.Thread):
             f.write( "%4d %5d %5d %6.2f %6.2f %5.2f\n"%(c[0],c[1],iter,round(c[2],2),round(c[3],2),round(c[4],2)))
             iter += 1
         f.close()
-    def addCustomConstraints(custom_constraints):
+    def addCustomConstraints(self,custom_constraints):
         f = open("constraints.dat","w")
         iter = 1
         for c in custom_constraints:
